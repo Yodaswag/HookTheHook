@@ -7,10 +7,16 @@ import { drawBackground, drawLightRays, drawBubbles, drawItems, drawBoat, drawHo
 import * as ui from './ui.js';
 
 // --- Constants ---
-const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 50 };
+const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 90 };
 const SWING_SPEED = 0.025;
 const DROP_SPEED = 8;
 const MAX_ANGLE = Math.PI / 2.5;
+
+// --- Speed ---
+let gameSpeed = 1.0; // multiplier, 0.5 – 3.0
+
+export function setGameSpeed(v) { gameSpeed = v; }
+export function getGameSpeed()  { return gameSpeed; }
 
 // --- State ---
 let currentLevel = 1;
@@ -294,7 +300,7 @@ function stepGame() {
 
     // --- Update ---
     if (hookState === 'SWINGING') {
-        hookAngle += SWING_SPEED * hookAngleDir;
+        hookAngle += SWING_SPEED * hookAngleDir * gameSpeed;
         if (hookAngle > MAX_ANGLE || hookAngle < -MAX_ANGLE) {
             hookAngleDir *= -1;
         }
@@ -320,7 +326,7 @@ function stepGame() {
             hookAngle += (targetAngle - hookAngle) * 0.08;
         }
 
-        hookLength += DROP_SPEED;
+        hookLength += DROP_SPEED * gameSpeed;
         const hx = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
         const hy = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength;
 
@@ -334,7 +340,7 @@ function stepGame() {
     else if (hookState === 'REELING') {
         if (frameCount % 10 === 0 && caughtItem) playReelSound();
 
-        hookLength -= DROP_SPEED;
+        hookLength -= DROP_SPEED * gameSpeed;
         if (caughtItem) {
             caughtItem.x = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
             if (caughtItem.type === 'text_box') {

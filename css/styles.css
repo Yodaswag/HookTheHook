@@ -110,26 +110,23 @@ canvas {
 .ui-box {
     pointer-events: auto;
     position: relative;
-    background:
-        linear-gradient(180deg, rgba(255, 248, 222, 0.98), rgba(239, 209, 150, 0.96));
-    padding: clamp(1.25rem, 4vw, 2rem);
-    border: 3px solid #5b3922;
-    border-radius: 8px;
+    background: url('../assets/TatteredPage-TextBG.png') no-repeat center center;
+    background-size: 100% 100%;
+    padding: clamp(2rem, 6vw, 3rem);
     text-align: center;
-    box-shadow:
-        0 12px 34px rgba(21, 11, 5, 0.38),
-        inset 0 0 0 2px rgba(255, 255, 255, 0.45);
     max-width: 480px;
     width: 90%;
     z-index: 50;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 12px 24px rgba(21, 11, 5, 0.45));
 }
 
 .ui-box::before {
-    content: "";
-    position: absolute;
-    inset: 10px;
-    border: 1px dashed rgba(91, 57, 34, 0.36);
-    pointer-events: none;
+    display: none;
 }
 
 .ui-overlay {
@@ -287,140 +284,27 @@ canvas {
 
 /* === Emoji Selectors === */
 .emoji-btn {
+    font-size: 2.5rem;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    transition: transform 0.2s, filter 0.2s, background-color 0.2s;
+    filter: grayscale(100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
 }
 .emoji-btn:hover {
-    transform: scale(1.12);
+    transform: scale(1.2);
+    filter: grayscale(0%);
 }
 .emoji-btn.selected {
     transform: scale(1.1);
-    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.45), inset 0 -5px 0 rgba(0, 0, 0, 0.12);
-    border-color: #92400e;
-}
-
-.face-choice {
-    position: relative;
-    width: clamp(44px, 10vw, 56px);
-    height: clamp(44px, 10vw, 56px);
-    display: inline-flex;
-    flex: 0 0 auto;
+    filter: grayscale(0%);
+    background: rgba(255,200,0,0.3);
     border-radius: 50%;
-    background: #facc15;
-    border: 3px solid #f59e0b;
-    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.12), 0 4px 10px rgba(73, 42, 16, 0.16);
 }
 
-.face-choice::before,
-.face-choice::after {
-    content: "";
-    position: absolute;
-}
-
-.face-choice::before {
-    left: calc(50% - 13px);
-    top: 16px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #1f2937;
-    box-shadow: 19px 0 0 #1f2937;
-}
-
-.face-choice::after {
-    left: 31%;
-    top: 59%;
-    width: 38%;
-    height: 17%;
-    border: 3px solid #1f2937;
-    border-top: 0;
-    border-radius: 0 0 20px 20px;
-}
-
-.face-excited {
-    background: #fde047;
-}
-
-.face-excited::before {
-    background: #7c2d12;
-    box-shadow: 19px 0 0 #7c2d12;
-}
-
-.face-happy {
-    background: #facc15;
-}
-
-.face-neutral::after {
-    top: 66%;
-    height: 0;
-    border: 0;
-    border-top: 3px solid #1f2937;
-    border-radius: 0;
-}
-
-.face-thinking {
-    background: #fde68a;
-}
-
-.face-thinking::after {
-    left: 34%;
-    top: 64%;
-    width: 32%;
-    height: 0;
-    border: 0;
-    border-top: 3px solid #1f2937;
-    border-radius: 0;
-    transform: rotate(-10deg);
-}
-
-.face-unsure {
-    background: #fdba74;
-    border-color: #f97316;
-}
-
-.face-unsure::after {
-    top: 66%;
-    height: 13%;
-    border-top: 3px solid #1f2937;
-    border-bottom: 0;
-    border-radius: 20px 20px 0 0;
-}
-
-.face-sleepy {
-    background: #bfdbfe;
-    border-color: #60a5fa;
-}
-
-.face-sleepy::before {
-    height: 0;
-    border-radius: 0;
-    background: transparent;
-    border-top: 3px solid #1f2937;
-    box-shadow: 19px 0 0 #1f2937;
-}
-
-.face-angry {
-    background: #fca5a5;
-    border-color: #ef4444;
-}
-
-.face-angry::before {
-    top: 34%;
-    height: 0;
-    border-radius: 0;
-    background: transparent;
-    border-top: 3px solid #1f2937;
-    box-shadow: 19px 0 0 #1f2937;
-    transform: rotate(12deg);
-}
-
-.face-angry::after {
-    top: 67%;
-    height: 13%;
-    border-top: 3px solid #1f2937;
-    border-bottom: 0;
-    border-radius: 20px 20px 0 0;
-}
 
 .emoji-row {
     display: flex;
@@ -481,16 +365,18 @@ canvas {
     transform: translateX(-50%) translateY(80px) scale(0.2);
     opacity: 0;
     width: 320px;
-    background: linear-gradient(180deg, #fff8dd, #ecd197);
-    border: 3px solid #6b3f1e;
-    border-radius: 8px;
-    padding: 1.5rem;
+    background: url('../assets/TatteredPage-TextBG.png') no-repeat center center;
+    background-size: 100% 100%;
+    padding: 2.5rem 1.5rem;
     transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 10;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.5));
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
+    min-height: 220px;
 }
 .principle-card.emerge {
     transform: translateX(-50%) translateY(0px) scale(1);
@@ -613,3 +499,118 @@ canvas {
 .survey-section:last-of-type {
     margin-bottom: 2rem;
 }
+
+/* === Speed Button === */
+#speed-btn {
+    position: absolute;
+    top: 1rem;
+    left: 5rem; /* sits to the right of the mute button */
+    pointer-events: auto;
+    background: linear-gradient(180deg, #fff2c7, #d89a38);
+    border: 2px solid rgba(75, 47, 31, 0.75);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    color: #2b1b11;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    z-index: 110;
+    transition: filter 0.2s, transform 0.1s;
+}
+#speed-btn:hover  { filter: brightness(1.08); }
+#speed-btn:active { transform: scale(0.96); }
+#speed-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+#speed-btn.is-active {
+    background: linear-gradient(180deg, #fde68a, #b45309);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.55), 0 4px 14px rgba(0,0,0,0.25);
+}
+
+/* === Speed Panel === */
+.speed-panel {
+    position: absolute;
+    /* Drop below both icon buttons, aligned with the left edge */
+    top: 4.5rem;
+    left: 1rem;
+    pointer-events: auto;
+    background: linear-gradient(180deg, rgba(255,246,218,0.97), rgba(229,192,124,0.96));
+    border: 2px solid rgba(88,55,29,0.72);
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 110;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+    transform-origin: top left;
+    transform: scaleY(0);
+    opacity: 0;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.speed-panel:not(.hidden) {
+    transform: scaleY(1);
+    opacity: 1;
+}
+
+.speed-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #2b1b11;
+    user-select: none;
+}
+
+.speed-value {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #7c2d12;
+    min-width: 2.8rem;
+    text-align: center;
+    user-select: none;
+}
+
+/* Range slider theming */
+.speed-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    /* Force LTR so the fill track always goes left→right regardless of page RTL */
+    direction: ltr;
+    width: 130px;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #075372 var(--pct, 20%), rgba(88,55,29,0.25) var(--pct, 20%));
+    outline: none;
+    cursor: pointer;
+    border: none;
+}
+.speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f7c948, #c06b2d);
+    border: 2px solid rgba(75,47,31,0.75);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: grab;
+    transition: transform 0.15s;
+}
+.speed-slider::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.2); }
+.speed-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f7c948, #c06b2d);
+    border: 2px solid rgba(75,47,31,0.75);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: grab;
+}
+

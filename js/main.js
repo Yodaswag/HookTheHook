@@ -31,6 +31,9 @@ initUI({
     },
     onSubmitSurvey2: () => {
         game.onSubmitSurvey2();
+    },
+    onSetSpeed: (val) => {
+        game.setGameSpeed(val);
     }
 });
 

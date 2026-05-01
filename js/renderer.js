@@ -273,17 +273,28 @@ export function drawBomb(ctx, radius, frameCount) {
     ctx.restore();
 }
 
+const tatteredPageImg = new Image();
+tatteredPageImg.src = 'assets/TatteredPage-TextBG.png';
+
 /**
  * Draw a text box item (level 3) at (0,0) in local coordinates.
  */
 export function drawTextBox(ctx, item, frameCount) {
-    ctx.fillStyle = "#fff7d6";
-    ctx.strokeStyle = "#b7791f";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(-item.width / 2, -item.height / 2, item.width, item.height, 8);
-    ctx.fill();
-    ctx.stroke();
+    // Draw the tattered page background instead of a round rect
+    // We check if it's loaded by checking naturalWidth
+    if (tatteredPageImg.naturalWidth > 0) {
+        // Draw the image to fit the item's width and height
+        ctx.drawImage(tatteredPageImg, -item.width / 2, -item.height / 2, item.width, item.height);
+    } else {
+        // Fallback if image not loaded yet
+        ctx.fillStyle = "#fff7d6";
+        ctx.strokeStyle = "#b7791f";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-item.width / 2, -item.height / 2, item.width, item.height, 8);
+        ctx.fill();
+        ctx.stroke();
+    }
 
     // Top loop decoration
     ctx.fillStyle = "#b7791f";
@@ -291,7 +302,7 @@ export function drawTextBox(ctx, item, frameCount) {
 
     // Mini chest in bottom-right corner
     ctx.save();
-    ctx.translate(item.width / 2, item.height / 2);
+    ctx.translate(item.width / 2 - 10, item.height / 2 - 10);
     drawChest(ctx, 0.3);
     ctx.restore();
 
@@ -340,21 +351,22 @@ export function drawItems(ctx, items, caughtItem, hookState, frameCount) {
  */
 export function drawBoat(ctx) {
     const cx = VIRTUAL_WIDTH / 2;
+    const BY = 40; // vertical offset — shifts boat below the HUD bar
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
     ctx.beginPath();
-    ctx.ellipse(cx, 58, 78, 12, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, 58 + BY, 78, 12, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    const hull = ctx.createLinearGradient(0, 18, 0, 54);
+    const hull = ctx.createLinearGradient(0, 18 + BY, 0, 54 + BY);
     hull.addColorStop(0, "#a5652c");
     hull.addColorStop(1, "#4f2a16");
     ctx.fillStyle = hull;
     ctx.beginPath();
-    ctx.moveTo(cx - 60, 20);
-    ctx.lineTo(cx + 60, 20);
-    ctx.lineTo(cx + 40, 50);
-    ctx.lineTo(cx - 40, 50);
+    ctx.moveTo(cx - 60, 20 + BY);
+    ctx.lineTo(cx + 60, 20 + BY);
+    ctx.lineTo(cx + 40, 50 + BY);
+    ctx.lineTo(cx - 40, 50 + BY);
     ctx.fill();
     ctx.strokeStyle = "#2b170c";
     ctx.lineWidth = 3;
@@ -364,8 +376,8 @@ export function drawBoat(ctx) {
     ctx.lineWidth = 2;
     for (let x = cx - 38; x <= cx + 38; x += 38) {
         ctx.beginPath();
-        ctx.moveTo(x, 23);
-        ctx.lineTo(x - 10, 46);
+        ctx.moveTo(x, 23 + BY);
+        ctx.lineTo(x - 10, 46 + BY);
         ctx.stroke();
     }
     ctx.restore();

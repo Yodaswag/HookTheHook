@@ -6,7 +6,7 @@ let uiCallbacks = {};
 
 /**
  * Initialize all UI event listeners.
- * @param {Object} callbacks - { onStart, onStartLevel, onSubmitSurvey1, onCloseCard, onSubmitSurvey2 }
+ * @param {Object} callbacks - { onStart, onStartLevel, onSubmitSurvey1, onCloseCard, onSubmitSurvey2, onSetSpeed }
  */
 export function initUI(callbacks) {
     uiCallbacks = callbacks;
@@ -61,6 +61,42 @@ export function initUI(callbacks) {
         hideScreen('survey-2-screen');
         if (uiCallbacks.onSubmitSurvey2) uiCallbacks.onSubmitSurvey2();
     });
+
+    // Speed button + panel
+    const speedBtn    = document.getElementById('speed-btn');
+    const speedPanel  = document.getElementById('speed-panel');
+    const speedSlider = document.getElementById('speed-slider');
+    const speedValue  = document.getElementById('speed-value');
+
+    function updateSliderTrack(val) {
+        const min = parseFloat(speedSlider.min);
+        const max = parseFloat(speedSlider.max);
+        const pct = ((val - min) / (max - min) * 100).toFixed(1) + '%';
+        speedSlider.style.setProperty('--pct', pct);
+    }
+    updateSliderTrack(parseFloat(speedSlider.value));
+
+    speedBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !speedPanel.classList.contains('hidden');
+        if (isOpen) {
+            speedPanel.classList.add('hidden');
+            speedBtn.classList.remove('is-active');
+            speedBtn.setAttribute('aria-pressed', 'false');
+        } else {
+            speedPanel.classList.remove('hidden');
+            speedBtn.classList.add('is-active');
+            speedBtn.setAttribute('aria-pressed', 'true');
+        }
+    });
+
+    speedSlider.addEventListener('input', (e) => {
+        e.stopPropagation();
+        const val = parseFloat(speedSlider.value);
+        if (uiCallbacks.onSetSpeed) uiCallbacks.onSetSpeed(val);
+        speedValue.textContent = '\u00d7' + val.toFixed(1);
+        updateSliderTrack(val);
+    });
 }
 
 // --- Emoji Selection (Survey 1) ---
@@ -78,9 +114,7 @@ function initEmojiSelection() {
                 selectedEmojis.push(emoji);
                 btn.classList.add('selected');
             }
-            document.getElementById('selected-emojis-display').innerText = selectedEmojis
-                .map(value => document.querySelector(`#emoji-container-1 [data-emoji="${value}"]`)?.getAttribute('aria-label') || value)
-                .join(', ');
+            document.getElementById('selected-emojis-display').innerText = selectedEmojis.join(' ');
         });
     });
 }

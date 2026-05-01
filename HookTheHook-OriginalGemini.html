@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק דיג - 3 שלבים</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; touch-action: none; font-family: system-ui, -apple-system, sans-serif; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        canvas { background: linear-gradient(to bottom, #4facfe 0%, #020024 100%); box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 10px; max-width: 100%; max-height: 100%; object-fit: contain; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+        .ui-box { pointer-events: auto; background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 1rem; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .hidden { display: none !important; }
+
+        /* Card Animation Classes */
+        .perspective-container { perspective: 800px; }
+        .principle-card { position: absolute; top: 10%; left: 50%; transform: translateX(-50%) translateY(80px) scale(0.2); opacity: 0; width: 320px; background: #fffbeb; border: 3px solid #d97706; border-radius: 12px; padding: 1.5rem; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .principle-card.emerge { transform: translateX(-50%) translateY(0px) scale(1); opacity: 1; }
+
+        /* Chest Animation Classes */
+        .chest-wrapper { position: relative; width: 100px; height: 80px; margin: 0 auto; z-index: 20; transform-style: preserve-3d; perspective: 1000px; }
+        .chest-base { position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; background: #8B4513; border: 3px solid #4a2509; border-radius: 4px; box-shadow: inset 0 -5px 15px rgba(0,0,0,0.5); z-index: 1; }
+        .chest-base::before, .chest-base::after { content: ''; position: absolute; background: #DAA520; width: 8px; height: 100%; top: 0; border-left: 1px solid #4a2509; border-right: 1px solid #4a2509; }
+        .chest-base::before { left: 15px; } .chest-base::after { right: 15px; }
+        .chest-lid { position: absolute; bottom: 47px; left: 0; width: 100%; height: 40px; background: #A0522D; border: 3px solid #4a2509; border-radius: 50px 50px 0 0; transform-origin: bottom center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 2; box-shadow: inset 0 8px 10px rgba(0,0,0,0.3); }
+        .chest-lid::before, .chest-lid::after { content: ''; position: absolute; background: #DAA520; width: 8px; height: 100%; bottom: 0; border-left: 1px solid #4a2509; border-right: 1px solid #4a2509; }
+        .chest-lid::before { left: 15px; } .chest-lid::after { right: 15px; }
+        .chest-lock { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 16px; height: 20px; background: #DAA520; border: 2px solid #4a2509; border-radius: 2px; z-index: 3; }
+        .chest-lock::after { content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 4px; height: 6px; background: #333; border-radius: 1px; }
+        .chest-lid.open { transform: rotateX(100deg); }
+
+        /* Mute Button */
+        #mute-btn { position: absolute; top: 1rem; left: 1rem; pointer-events: auto; background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 110; transition: background 0.2s;}
+        #mute-btn:hover { background: rgba(255,255,255,1); }
+
+        /* Emoji Selectors */
+        .emoji-btn { font-size: 2.5rem; cursor: pointer; transition: transform 0.2s, filter 0.2s; filter: grayscale(100%); }
+        .emoji-btn:hover { transform: scale(1.2); filter: grayscale(0%); }
+        .emoji-btn.selected { filter: grayscale(0%); transform: scale(1.1); background: rgba(255,200,0,0.3); border-radius: 50%; }
+
+        .star-btn { font-size: 2.5rem; cursor: pointer; transition: transform 0.2s; color: #ccc; }
+        .star-btn.active { color: #f59e0b; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <button id="mute-btn" title="השתק סאונד">🔊</button>
+
+    <!-- Top UI, always visible after start -->
+    <div id="game-ui" class="hidden absolute top-4 w-full max-w-[800px] flex justify-between px-4 font-bold text-white text-xl drop-shadow-md z-[100] pointer-events-none">
+        <div id="level-display" class="bg-black/40 px-4 py-2 rounded-lg backdrop-blur-sm">שלב 1</div>
+        <div id="message-display" class="text-center flex-1 mx-4 bg-black/40 px-4 py-2 rounded-lg backdrop-blur-sm transition-colors duration-300">הטל את החכה כדי לאסוף תיבה</div>
+        <div id="score-display" class="text-amber-400 bg-black/40 px-4 py-2 rounded-lg backdrop-blur-sm">נקודות: 0</div>
+    </div>
+
+    <div id="ui-layer" class="p-4 flex flex-col items-center">
+        <!-- Start Screen -->
+        <div id="start-screen" class="ui-box my-auto max-w-lg z-50">
+            <h1 class="text-3xl font-bold text-blue-600 mb-4">משחק דיג - 3 שלבים</h1>
+            <p class="mb-6 text-lg">בואו נצלול פנימה! עברו את שלושת השלבים ואספו אוצרות ממעמקי הים.</p>
+            <button id="start-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-xl transition-colors">התחל לשחק</button>
+        </div>
+
+        <!-- Level Intro Screen -->
+        <div id="level-intro-screen" class="ui-box my-auto hidden max-w-lg z-50">
+            <h2 id="level-intro-title" class="text-2xl font-bold text-blue-600 mb-4"></h2>
+            <p id="level-intro-text" class="mb-6 text-lg"></p>
+            <button id="start-level-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full text-xl transition-colors">המשך</button>
+        </div>
+
+        <!-- Survey 1 (Post Level 1) -->
+        <div id="survey-1-screen" class="ui-box my-auto hidden max-w-lg z-50">
+            <h2 class="text-2xl font-bold text-blue-600 mb-4">שלב 1 הושלם!</h2>
+            <p class="mb-4 text-lg">איך התחושה להתחיל ללמוד את הקורס הזה בעזרת משחק?</p>
+            <div id="emoji-container-1" class="flex justify-center gap-4 mb-6 flex-wrap">
+                <span class="emoji-btn" data-emoji="🤩">🤩</span>
+                <span class="emoji-btn" data-emoji="😊">😊</span>
+                <span class="emoji-btn" data-emoji="🤔">🤔</span>
+                <span class="emoji-btn" data-emoji="😕">😕</span>
+                <span class="emoji-btn" data-emoji="😴">😴</span>
+            </div>
+            <div class="mb-6 text-xl">בחרת: <span id="selected-emojis-display" class="font-bold"></span></div>
+            <button id="submit-survey-1-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full text-xl transition-colors">המשך</button>
+        </div>
+
+        <!-- Animation Modal (Level 2) -->
+        <div id="animation-modal" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-[80] pointer-events-auto transition-opacity">
+            <div class="relative w-full max-w-md flex flex-col items-center justify-end pb-8 h-[500px] perspective-container">
+                <!-- The Card -->
+                <div id="principle-card" class="principle-card flex flex-col text-center">
+                    <h2 id="card-title" class="text-2xl font-bold text-amber-700 mb-3"></h2>
+                    <p id="card-text" class="text-gray-800 text-lg mb-6 leading-relaxed"></p>
+                    <button id="close-card-btn" class="bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-8 rounded-full self-center transition-colors shadow-md">המשך</button>
+                </div>
+                
+                <!-- The Chest -->
+                <div class="chest-wrapper mb-8">
+                    <div id="chest-lid" class="chest-lid"></div>
+                    <div class="chest-base">
+                        <div class="chest-lock"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey 2 (Final) -->
+        <div id="survey-2-screen" class="ui-box my-auto hidden max-w-lg z-50">
+            <h2 class="text-3xl font-bold text-green-600 mb-6">כל הכבוד, סיימת!</h2>
+            
+            <div class="mb-6 text-right">
+                <p class="mb-2 text-lg font-bold">1. כמה נהנית לקבל נקודות?</p>
+                <div id="rating-1" class="flex justify-end gap-2 flex-row-reverse">
+                    <span class="emoji-btn single-emoji" data-val="1">🤩</span>
+                    <span class="emoji-btn single-emoji" data-val="2">😊</span>
+                    <span class="emoji-btn single-emoji" data-val="3">😐</span>
+                    <span class="emoji-btn single-emoji" data-val="4">😕</span>
+                    <span class="emoji-btn single-emoji" data-val="5">😡</span>
+                </div>
+            </div>
+
+            <div class="mb-8 text-right">
+                <p class="mb-2 text-lg font-bold">2. כמה נהנית מהאינטראקציה והאתגר?</p>
+                <div id="rating-2" class="flex justify-end gap-2 flex-row-reverse">
+                    <span class="emoji-btn single-emoji" data-val="1">🤩</span>
+                    <span class="emoji-btn single-emoji" data-val="2">😊</span>
+                    <span class="emoji-btn single-emoji" data-val="3">😐</span>
+                    <span class="emoji-btn single-emoji" data-val="4">😕</span>
+                    <span class="emoji-btn single-emoji" data-val="5">😡</span>
+                </div>
+            </div>
+
+            <button id="submit-survey-2-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-xl transition-colors">סיום</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- Setup Images ---
+    const chestImg = new Image();
+    chestImg.src = '33067.jpg';
+
+    // --- Audio System ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let masterGain;
+    let isMuted = false;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+            masterGain = audioCtx.createGain();
+            masterGain.connect(audioCtx.destination);
+            masterGain.gain.value = 0.3;
+        }
+        if(audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleMute(e) {
+        if(e) e.stopPropagation();
+        isMuted = !isMuted;
+        if (masterGain) masterGain.gain.value = isMuted ? 0 : 0.3;
+        document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    }
+    document.getElementById('mute-btn').addEventListener('click', toggleMute);
+
+    function playTone(freq, type, duration, vol=1, startTimeOffset=0) {
+        if (!audioCtx || isMuted) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        
+        if (Array.isArray(freq)) {
+            osc.frequency.setValueAtTime(freq[0], audioCtx.currentTime + startTimeOffset);
+            osc.frequency.exponentialRampToValueAtTime(freq[1], audioCtx.currentTime + startTimeOffset + duration);
+        } else {
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startTimeOffset);
+        }
+        
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime + startTimeOffset);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + startTimeOffset + duration);
+        
+        osc.connect(gain);
+        gain.connect(masterGain);
+        
+        osc.start(audioCtx.currentTime + startTimeOffset);
+        osc.stop(audioCtx.currentTime + startTimeOffset + duration);
+    }
+
+    function playCastSound() { playTone([600, 100], 'sine', 0.4, 0.5); }
+    function playCatchSound() { playTone(880, 'square', 0.1, 0.3); playTone(1108, 'square', 0.1, 0.3, 0.05); }
+    function playReelSound() { playTone(150, 'sawtooth', 0.05, 0.1); }
+    function playBombSound() { playTone([100, 40], 'sawtooth', 0.5, 0.8); }
+    function playErrorSound() { playTone(150, 'sawtooth', 0.3, 0.5); playTone(100, 'sawtooth', 0.4, 0.5, 0.15); }
+    function playChestOpenSound() {
+        playTone(261.63, 'sine', 0.3, 0.5, 0);
+        playTone(329.63, 'sine', 0.3, 0.5, 0.1);
+        playTone(392.00, 'sine', 0.4, 0.5, 0.2);
+        playTone(523.25, 'sine', 0.6, 0.5, 0.3);
+    }
+    function playWinSound() {
+        playTone(440, 'square', 0.15, 0.4, 0);
+        playTone(440, 'square', 0.15, 0.4, 0.2);
+        playTone(440, 'square', 0.15, 0.4, 0.4);
+        playTone(587.33, 'square', 0.6, 0.4, 0.6);
+    }
+
+    // --- Game Core ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const startScreen = document.getElementById('start-screen');
+    const levelIntroScreen = document.getElementById('level-intro-screen');
+    const gameUi = document.getElementById('game-ui');
+    const levelDisplay = document.getElementById('level-display');
+    const messageDisplay = document.getElementById('message-display');
+    const scoreDisplay = document.getElementById('score-display');
+    const animationModal = document.getElementById('animation-modal');
+    
+    // UI Screens
+    const survey1Screen = document.getElementById('survey-1-screen');
+    const survey2Screen = document.getElementById('survey-2-screen');
+
+    // Game Constants
+    const HOOK_ORIGIN = { x: canvas.width / 2, y: 50 };
+    const SWING_SPEED = 0.025;
+    const DROP_SPEED = 8;
+    const MAX_ANGLE = Math.PI / 2.5;
+
+    // Data
+    const principles = [
+        { title: "יצירת אתגר", text: "חידה עשויה לעורר חשיבה ביקורתית והשתתפות אצל התלמידים." },
+        { title: "רלוונטיות", text: "כדאי שהמשחק יהיה קשור ישירות לנושא הנלמד בשיעור." },
+        { title: "סקרנות חושית", text: "אינטרקציה, גרפיקה וסאונד יכולים לסייע משמעותית בתפיסת תשומת הלב של הלומד." },
+        { title: "שאלות מעניינות", text: "שילוב שאלות יכול לעורר סקרנות טבעית ורצון להמשיך וללמוד עוד." }
+    ];
+
+    const level3Items = [
+        { lines: ["מעורר חשיבה", "ביקורתית"], isCorrectStatement: true },
+        { lines: ["קשור ישירות", "לנושא הנלמד"], isCorrectStatement: true },
+        { lines: ["גרפיקה וסאונד", "תופסים קשב"], isCorrectStatement: true },
+        { lines: ["שאלות מעוררות", "סקרנות"], isCorrectStatement: true },
+        { lines: ["חייב להיות ארוך", "ומורכב"], isCorrectStatement: false } // The incorrect statement
+    ];
+
+    // State
+    let currentLevel = 1;
+    let score = 0;
+    let hookState = 'IDLE'; // IDLE, SWINGING, DROPPING, REELING, LEVEL3_END, SHOW_FINAL_ANSWERS
+    let hookAngle = -MAX_ANGLE;
+    let hookAngleDir = 1;
+    let hookLength = 50;
+    let caughtItem = null;
+    let items = [];
+    let bubbles = [];
+    let floatingTexts = [];
+    let animationFrameId;
+    let chestsCollected = 0;
+    let frameCount = 0;
+    
+    // Level 3 State
+    let level3CollectedCount = 0;
+    let level3Slots = [];
+    
+    // UI Forms State
+    let selectedEmojis = [];
+
+    // --- Core Logic ---
+
+    function updateScore(pts) {
+        score += pts;
+        scoreDisplay.innerText = `נקודות: ${score}`;
+    }
+
+    function addFloatingText(text, x, y, color = "#ff0000") {
+        floatingTexts.push({ text, x, y, color, alpha: 1.0 });
+    }
+
+    function showLevelIntro(level) {
+        hookState = 'IDLE';
+        levelDisplay.innerText = `שלב ${level}`;
+        messageDisplay.innerText = 'היכונו...';
+        
+        levelIntroScreen.classList.remove('hidden');
+        if (level === 2) {
+            document.getElementById('level-intro-title').innerText = "שלב 2: עקרונות ההוק";
+            document.getElementById('level-intro-text').innerText = "כעת נלמד על עקרונות ההוק. דוגו את כל תיבות המידע!";
+        } else if (level === 3) {
+            document.getElementById('level-intro-title').innerText = "שלב 3: אתגר הידע";
+            document.getElementById('level-intro-text').innerText = "אספו את כל המשפטים הנכונים לגבי הוק. שימו לב לקרוא את התשובות בקפידה! כל טעות תוריד 100 נקודות.";
+        }
+    }
+
+    document.getElementById('start-level-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        levelIntroScreen.classList.add('hidden');
+        initLevel(currentLevel); 
+    });
+
+    function initLevel(level) {
+        currentLevel = level;
+        chestsCollected = 0;
+        caughtItem = null;
+        hookLength = 50;
+        hookState = 'SWINGING';
+        items = [];
+        floatingTexts = [];
+
+        if (level === 1) {
+            levelDisplay.innerText = 'שלב 1: חימום';
+            messageDisplay.innerText = 'אספו את תיבות האוצר, היזהרו מהפצצות!';
+            items = [
+                { id: 1, type: 'chest', x: 250, y: 520, width: 60, height: 45, caught: false },
+                { id: 2, type: 'chest', x: 550, y: 540, width: 60, height: 45, caught: false },
+                { id: 3, type: 'bomb', x: 400, y: 460, radius: 20, caught: false },
+                { id: 4, type: 'bomb', x: 700, y: 490, radius: 20, caught: false }
+            ];
+        } 
+        else if (level === 2) {
+            levelDisplay.innerText = 'שלב 2: ידע (0/4)';
+            messageDisplay.innerText = 'אספו את התיבות כדי ללמוד על עקרונות ההוק';
+            const positions = [ { x: 150, y: 520 }, { x: 350, y: 460 }, { x: 550, y: 540 }, { x: 720, y: 490 } ];
+            items = principles.map((p, i) => ({
+                id: i+10, type: 'principle_chest', title: p.title, text: p.text,
+                x: positions[i].x, y: positions[i].y, width: 60, height: 45, caught: false
+            }));
+        }
+        else if (level === 3) {
+            levelDisplay.innerText = 'שלב 3: אתגר';
+            messageDisplay.innerText = 'אספו את כל המשפטים הנכונים (קראו היטב את התשובות!)';
+            
+            level3CollectedCount = 0;
+            // Target slots side-by-side at the top, perfectly spaced out
+            level3Slots = [
+                { x: 145, y: 120 }, 
+                { x: 315, y: 120 }, 
+                { x: 485, y: 120 }, 
+                { x: 655, y: 120 }
+            ];
+            
+            // Concave (U-Shape) layout coordinates spaced out for larger pythagorean gap
+            const positions = [
+                { x: 90, y: 200 },
+                { x: 200, y: 420 },
+                { x: 400, y: 540 },
+                { x: 600, y: 420 },
+                { x: 710, y: 200 }
+            ];
+            
+            // Randomize the mapping of statements to positions to ensure replayability
+            let shuffledItems = [...level3Items].sort(() => Math.random() - 0.5);
+
+            items = shuffledItems.map((item, i) => ({
+                id: i+20, type: 'text_box', lines: item.lines, isCorrectStatement: item.isCorrectStatement,
+                x: positions[i].x, y: positions[i].y, width: 140, height: 60, caught: false, collected: false, scale: 1
+            }));
+        }
+
+        // Store original positions for snapping back on mistakes
+        items.forEach(item => {
+            item.originalX = item.x;
+            item.originalY = item.y;
+        });
+
+        if (bubbles.length === 0) {
+            for (let i = 0; i < 40; i++) {
+                bubbles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 4 + 1, speed: Math.random() * 1.5 + 0.5 });
+            }
+        }
+    }
+
+    // Input
+    function handleDrop(e) {
+        if(e.target.id === 'mute-btn') return;
+        if (hookState === 'SWINGING') {
+            initAudio();
+            hookState = 'DROPPING';
+            playCastSound();
+        }
+    }
+
+    window.addEventListener('mousedown', handleDrop);
+    window.addEventListener('touchstart', handleDrop);
+    
+    document.getElementById('start-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudio();
+        startScreen.classList.add('hidden');
+        gameUi.classList.remove('hidden');
+        score = 0; updateScore(0);
+        initLevel(1);
+        if (!animationFrameId) gameLoop();
+    });
+
+    function checkCollision(hx, hy) {
+        for (let item of items) {
+            if (item.caught || item.collected) continue;
+            
+            let hit = false;
+            if (item.type === 'bomb') {
+                hit = Math.hypot(item.x - hx, item.y - hy) < item.radius + 10;
+            } else {
+                hit = hx > item.x - item.width/2 && hx < item.x + item.width/2 &&
+                      hy > item.y - item.height && hy < item.y + item.height/2;
+            }
+            if(hit) return item;
+        }
+        return null;
+    }
+
+    function processCatch(item) {
+        if (item.type === 'bomb') {
+            playBombSound();
+            updateScore(-50);
+            addFloatingText("-50", item.x, item.y, "#ef4444");
+            item.caught = true; 
+            hookState = 'REELING';
+            caughtItem = null; 
+        } else {
+            caughtItem = item;
+            caughtItem.caught = true;
+            hookState = 'REELING';
+            playCatchSound();
+        }
+    }
+
+    function onReelInComplete() {
+        hookLength = 50;
+        
+        if (!caughtItem) {
+            hookState = 'SWINGING';
+            return;
+        }
+
+        const floatX = caughtItem.x;
+        const floatY = caughtItem.y;
+
+        if (currentLevel === 1) {
+            updateScore(100);
+            addFloatingText("+100", floatX, floatY, "#4ade80");
+            caughtItem = null;
+            chestsCollected++;
+            if (chestsCollected >= 2) {
+                hookState = 'IDLE';
+                survey1Screen.classList.remove('hidden');
+            } else {
+                hookState = 'SWINGING';
+            }
+        } 
+        else if (currentLevel === 2) {
+            updateScore(1000);
+            addFloatingText("+1000", floatX, floatY, "#4ade80");
+            showLevel2ChestAnimation(caughtItem);
+        }
+        else if (currentLevel === 3) {
+            if (caughtItem.isCorrectStatement) {
+                // Correct statement collected!
+                updateScore(1000);
+                addFloatingText("+1000", floatX, floatY, "#4ade80");
+                playCatchSound();
+                
+                caughtItem.collected = true;
+                caughtItem.targetX = level3Slots[level3CollectedCount].x;
+                caughtItem.targetY = level3Slots[level3CollectedCount].y;
+                caughtItem.targetScale = 0.9; // Shrink slightly to fit and guarantee no overlap
+                
+                level3CollectedCount++;
+                caughtItem = null; // Detach from hook
+                
+                if (level3CollectedCount >= 4) {
+                    playWinSound();
+                    hookState = 'LEVEL3_END';
+                    setTimeout(() => survey2Screen.classList.remove('hidden'), 2000);
+                } else {
+                    hookState = 'SWINGING';
+                }
+            } else {
+                // Mistake (caught the false statement)
+                playErrorSound();
+                updateScore(-100);
+                addFloatingText("-100", floatX, floatY, "#ff0000");
+                
+                // Feedback text
+                messageDisplay.innerText = "לא נורא, לומדים מפספוס";
+                messageDisplay.classList.add('bg-red-500/80');
+                
+                setTimeout(() => {
+                    if (currentLevel === 3 && hookState !== 'LEVEL3_END' && hookState !== 'SHOW_FINAL_ANSWERS') {
+                        messageDisplay.innerText = 'אספו את כל המשפטים הנכונים (קראו היטב את התשובות!)';
+                        messageDisplay.classList.remove('bg-red-500/80');
+                    }
+                }, 2500);
+
+                // Snap back to original position
+                caughtItem.x = caughtItem.originalX;
+                caughtItem.y = caughtItem.originalY;
+                caughtItem.caught = false; 
+                caughtItem = null;
+                hookState = 'SWINGING';
+            }
+        }
+    }
+
+    // --- Modals & Surveys ---
+
+    // Survey 1 Logic
+    document.querySelectorAll('#emoji-container-1 .emoji-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const emoji = btn.dataset.emoji;
+            if (selectedEmojis.includes(emoji)) {
+                selectedEmojis = selectedEmojis.filter(e => e !== emoji);
+                btn.classList.remove('selected');
+            } else {
+                selectedEmojis.push(emoji);
+                btn.classList.add('selected');
+            }
+            document.getElementById('selected-emojis-display').innerText = selectedEmojis.join(' ');
+        });
+    });
+
+    document.getElementById('submit-survey-1-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        survey1Screen.classList.add('hidden');
+        currentLevel = 2; // prep for next
+        showLevelIntro(2);
+    });
+
+    // Level 2 Animation
+    function showLevel2ChestAnimation(item) {
+        hookState = 'IDLE';
+        playChestOpenSound();
+        document.getElementById('card-title').innerText = item.title;
+        document.getElementById('card-text').innerText = item.text;
+        
+        document.getElementById('chest-lid').classList.remove('open');
+        document.getElementById('principle-card').classList.remove('emerge');
+        
+        const closeBtn = document.getElementById('close-card-btn');
+        closeBtn.disabled = true;
+        
+        animationModal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            document.getElementById('chest-lid').classList.add('open');
+            setTimeout(() => {
+                document.getElementById('principle-card').classList.add('emerge');
+                
+                // Enable button after 0.75s of text appearing
+                setTimeout(() => {
+                    closeBtn.disabled = false;
+                }, 750);
+
+            }, 300);
+        }, 500);
+    }
+
+    document.getElementById('close-card-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        animationModal.classList.add('hidden');
+        caughtItem = null;
+        chestsCollected++;
+        levelDisplay.innerText = `שלב 2: ידע (${chestsCollected}/4)`;
+        
+        if (chestsCollected >= principles.length) {
+            currentLevel = 3;
+            showLevelIntro(3);
+        } else {
+            hookState = 'SWINGING';
+        }
+    });
+
+    // Survey 2 Logic (Single-choice Emojis)
+    function setupSingleEmojiRating(containerId) {
+        const container = document.getElementById(containerId);
+        const emojis = container.querySelectorAll('.single-emoji');
+        emojis.forEach(emoji => {
+            emoji.addEventListener('click', (e) => {
+                e.stopPropagation();
+                emojis.forEach(s => s.classList.remove('selected'));
+                emoji.classList.add('selected');
+            });
+        });
+    }
+    setupSingleEmojiRating('rating-1');
+    setupSingleEmojiRating('rating-2');
+
+    document.getElementById('submit-survey-2-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        survey2Screen.classList.add('hidden');
+        
+        // Final Showcase
+        hookState = 'SHOW_FINAL_ANSWERS';
+        gameUi.classList.add('hidden');
+        
+        // Setup 2x2 grid in the center for the 4 final correct statements
+        const finalTargets = [
+            { x: 250, y: 250, scale: 1.4 },
+            { x: 550, y: 250, scale: 1.4 },
+            { x: 250, y: 400, scale: 1.4 },
+            { x: 550, y: 400, scale: 1.4 }
+        ];
+        
+        let idx = 0;
+        items.forEach(item => {
+            if(item.collected) {
+                item.targetX = finalTargets[idx].x;
+                item.targetY = finalTargets[idx].y;
+                item.targetScale = finalTargets[idx].scale;
+                idx++;
+            }
+        });
+    });
+
+
+    // --- Render Loop ---
+    function gameLoop() {
+        frameCount++;
+        
+        // Update Hook Logic
+        if (hookState === 'SWINGING') {
+            hookAngle += SWING_SPEED * hookAngleDir;
+            if (hookAngle > MAX_ANGLE || hookAngle < -MAX_ANGLE) {
+                hookAngleDir *= -1;
+            }
+        } else if (hookState === 'DROPPING') {
+            const currentHx = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
+            const currentHy = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength;
+            
+            // Homing Logic (Minor pull towards nearest item)
+            let nearestChest = null;
+            let minDist = Infinity;
+            for (let item of items) {
+                if (!item.caught && !item.collected && item.type !== 'bomb') {
+                    const dist = Math.hypot(item.x - currentHx, item.y - currentHy);
+                    if (dist < 120 && dist < minDist) { 
+                        minDist = dist;
+                        nearestChest = item;
+                    }
+                }
+            }
+            if (nearestChest) {
+                const targetAngle = Math.atan2(nearestChest.x - HOOK_ORIGIN.x, nearestChest.y - HOOK_ORIGIN.y);
+                hookAngle += (targetAngle - hookAngle) * 0.08;
+            }
+
+            hookLength += DROP_SPEED;
+            const hx = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
+            const hy = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength;
+
+            let hit = checkCollision(hx, hy);
+            if (hit) {
+                processCatch(hit);
+            } else if (hx < 0 || hx > canvas.width || hy > canvas.height) {
+                hookState = 'REELING';
+            }
+        } else if (hookState === 'REELING') {
+            if(frameCount % 10 === 0 && caughtItem) playReelSound();
+
+            hookLength -= DROP_SPEED;
+            if (caughtItem) {
+                caughtItem.x = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
+                if(caughtItem.type === 'text_box') {
+                     caughtItem.y = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength + caughtItem.height/2 + 10;
+                } else {
+                     caughtItem.y = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength + caughtItem.height/2;
+                }
+            }
+            if (hookLength <= 50) {
+                onReelInComplete();
+            }
+        }
+
+        // Animate Collected Items in Level 3 and End Game Showcase
+        if (currentLevel === 3 && (hookState === 'LEVEL3_END' || hookState === 'SHOW_FINAL_ANSWERS')) {
+            items.forEach(item => {
+                if (item.collected) {
+                    item.x += (item.targetX - item.x) * 0.1;
+                    item.y += (item.targetY - item.y) * 0.1;
+                    if(item.targetScale) item.scale += (item.targetScale - item.scale) * 0.1;
+                }
+            });
+        }
+
+        // --- Draw ---
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#4facfe");
+        gradient.addColorStop(1, "#020024");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Light rays
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 - 50, 0);
+        ctx.lineTo(canvas.width / 2 - 250, canvas.height);
+        ctx.lineTo(canvas.width / 2 + 100, canvas.height);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 + 50, 0);
+        ctx.lineTo(canvas.width / 2 + 150, canvas.height);
+        ctx.lineTo(canvas.width / 2 + 350, canvas.height);
+        ctx.fill();
+        ctx.restore();
+
+        // Bubbles
+        if (bubbles) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            for (let b of bubbles) {
+                b.y -= b.speed;
+                b.x += Math.sin(b.y * 0.05) * 0.5;
+                if (b.y < -10) { b.y = canvas.height + 10; b.x = Math.random() * canvas.width; }
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw Items
+        for (let item of items) {
+            // Hidden exploding bombs or uncollected things that shouldn't be drawn right now
+            if (item.caught && item !== caughtItem && item.type === 'bomb') continue; 
+            if (hookState === 'SHOW_FINAL_ANSWERS' && !item.collected) continue; 
+            
+            ctx.save();
+            ctx.translate(item.x, item.y);
+            if(item.scale) ctx.scale(item.scale, item.scale);
+
+            if (item.type === 'chest' || item.type === 'principle_chest') {
+                ctx.save();
+                ctx.scale(1.8, 1.8);
+                
+                // Chest body
+                ctx.fillStyle = "#8B4513"; 
+                ctx.fillRect(-15, -10, 30, 20);
+                
+                // Wood panels (lines)
+                ctx.strokeStyle = "#5C4033";
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(-15, -3); ctx.lineTo(15, -3); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-15, 4); ctx.lineTo(15, 4); ctx.stroke();
+                
+                // Chest lid
+                ctx.fillStyle = "#A0522D"; 
+                ctx.beginPath(); ctx.arc(0, -10, 15, Math.PI, 0); ctx.fill();
+                
+                // Gold trims
+                ctx.fillStyle = "#DAA520"; 
+                ctx.fillRect(-15, -10, 30, 3); // Lid edge
+                ctx.fillRect(-12, -24, 4, 34); // Left strap
+                ctx.fillRect(8, -24, 4, 34);   // Right strap
+                ctx.fillRect(-15, 8, 30, 2);   // Bottom edge
+                
+                // Lock
+                ctx.fillStyle = "#DAA520";
+                ctx.beginPath(); ctx.arc(0, -7, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#333";
+                ctx.fillRect(-1, -7, 2, 4);
+                
+                ctx.restore();
+            } 
+            else if (item.type === 'bomb') {
+                // Bomb Base
+                ctx.fillStyle = "#111";
+                ctx.beginPath(); ctx.arc(0, 0, item.radius, 0, Math.PI*2); ctx.fill();
+                // Highlight
+                ctx.fillStyle = "rgba(255,255,255,0.2)";
+                ctx.beginPath(); ctx.arc(-5, -5, 6, 0, Math.PI*2); ctx.fill();
+                // Fuse base
+                ctx.fillStyle = "#555";
+                ctx.fillRect(-4, -item.radius-4, 8, 6);
+                // Fuse
+                ctx.strokeStyle = "#8B4513"; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, -item.radius-4); ctx.quadraticCurveTo(10, -item.radius-15, 5, -item.radius-20); ctx.stroke();
+                // Spark
+                if(frameCount % 10 < 5) {
+                    ctx.fillStyle = "#ffaa00";
+                    ctx.beginPath(); ctx.arc(5, -item.radius-20, 3, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            else if (item.type === 'text_box') {
+                ctx.fillStyle = "#ffffff";
+                ctx.strokeStyle = "#DAA520";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(-item.width/2, -item.height/2, item.width, item.height, 8);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Top Loop Decoration
+                ctx.fillStyle = "#DAA520";
+                ctx.beginPath(); ctx.arc(0, -item.height/2, 6, 0, Math.PI, true); ctx.fill(); 
+                
+                // Bottom Right Detailed Chest Graphic using canvas API
+                ctx.save();
+                ctx.translate(item.width/2, item.height/2); // Right on top of the bottom right corner
+                ctx.scale(0.3, 0.3); // Smaller scale
+                
+                // Chest body
+                ctx.fillStyle = "#8B4513"; 
+                ctx.fillRect(-15, -10, 30, 20);
+                
+                // Wood panels (lines)
+                ctx.strokeStyle = "#5C4033";
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(-15, -3); ctx.lineTo(15, -3); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-15, 4); ctx.lineTo(15, 4); ctx.stroke();
+                
+                // Chest lid
+                ctx.fillStyle = "#A0522D"; 
+                ctx.beginPath(); ctx.arc(0, -10, 15, Math.PI, 0); ctx.fill();
+                
+                // Gold trims
+                ctx.fillStyle = "#DAA520"; 
+                ctx.fillRect(-15, -10, 30, 3); // Lid edge
+                ctx.fillRect(-12, -24, 4, 34); // Left strap
+                ctx.fillRect(8, -24, 4, 34);   // Right strap
+                ctx.fillRect(-15, 8, 30, 2);   // Bottom edge
+                
+                // Lock
+                ctx.fillStyle = "#DAA520";
+                ctx.beginPath(); ctx.arc(0, -7, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#333";
+                ctx.fillRect(-1, -7, 2, 4);
+                
+                ctx.restore();
+
+                // Text
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 14px system-ui";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                if (item.lines.length === 2) {
+                    ctx.fillText(item.lines[0], 0, -8);
+                    ctx.fillText(item.lines[1], 0, 12);
+                } else {
+                    ctx.fillText(item.lines[0], 0, 0);
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // Draw Boat and Hook line
+        if (hookState !== 'SHOW_FINAL_ANSWERS') {
+            ctx.fillStyle = "#8B4513";
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2 - 60, 20);
+            ctx.lineTo(canvas.width/2 + 60, 20);
+            ctx.lineTo(canvas.width/2 + 40, 50);
+            ctx.lineTo(canvas.width/2 - 40, 50);
+            ctx.fill();
+
+            if (hookState !== 'LEVEL3_END') {
+                const endX = HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength;
+                const endY = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength;
+                
+                ctx.strokeStyle = "#333";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(HOOK_ORIGIN.x, HOOK_ORIGIN.y);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                ctx.strokeStyle = "#666";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(endX, endY + 10, 10, Math.PI, 0, true);
+                ctx.stroke();
+            }
+        }
+        
+        // Draw Final Title text
+        if (hookState === 'SHOW_FINAL_ANSWERS') {
+            ctx.save();
+            ctx.fillStyle = "#FFD700";
+            ctx.font = "bold 48px system-ui";
+            ctx.textAlign = "center";
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 10;
+            ctx.fillText("כל הכבוד! סיימתם בהצלחה", canvas.width/2, 90);
+            
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 24px system-ui";
+            ctx.fillText(`הניקוד הסופי שלכם: ${score}`, canvas.width/2, 140);
+            ctx.restore();
+        }
+        
+        // Draw Floating Texts (+points animation)
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            let ft = floatingTexts[i];
+            ctx.save();
+            ctx.fillStyle = ft.color.replace('rgb', 'rgba').replace(')', `, ${ft.alpha})`); 
+            ctx.globalAlpha = ft.alpha;
+            ctx.fillStyle = ft.color;
+            ctx.font = "bold 36px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText(ft.text, ft.x, ft.y);
+            
+            // Adding a small white stroke for better visibility
+            ctx.strokeStyle = "rgba(255,255,255," + ft.alpha + ")";
+            ctx.lineWidth = 1.5;
+            ctx.strokeText(ft.text, ft.x, ft.y);
+            
+            ctx.restore();
+
+            ft.y -= 1.5;
+            ft.alpha -= 0.015;
+            if (ft.alpha <= 0) {
+                floatingTexts.splice(i, 1);
+            }
+        }
+
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+</script>
+
+</body>
+</html>

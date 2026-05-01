@@ -1,0 +1,431 @@
+/* styles.css — All styles for HookTheHook (replaces Tailwind + inline) */
+
+/* === Reset & Base === */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #0a0e27;
+    touch-action: none;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* === Game Container === */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* === Canvas === */
+canvas {
+    background: linear-gradient(to bottom, #4facfe 0%, #020024 100%);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 80px rgba(79, 172, 254, 0.15);
+    /* border-radius is set dynamically by canvas.js to scale with the square */
+}
+
+/* === UI Layer (sits on top of canvas, positioned by canvas.js) === */
+#ui-layer {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+/* === Top HUD bar (positioned by canvas.js) === */
+#game-ui {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+    padding-top: 1rem;
+}
+
+#game-ui .hud-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 0 1rem;
+    gap: 0.5rem;
+}
+
+.hud-box {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    white-space: nowrap;
+}
+
+.hud-message {
+    text-align: center;
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    transition: background-color 0.3s;
+}
+
+.hud-score {
+    color: #fbbf24;
+}
+
+.msg-error {
+    background-color: rgba(239, 68, 68, 0.8) !important;
+}
+
+/* === Hidden utility === */
+.hidden {
+    display: none !important;
+}
+
+/* === UI Box (modal cards) === */
+.ui-box {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    max-width: 480px;
+    width: 90%;
+    z-index: 50;
+}
+
+.ui-overlay {
+    pointer-events: auto;
+}
+
+/* === Screen centering (for overlays that need to be centered in the viewport) === */
+.screen-center {
+    margin: auto;
+}
+
+/* === Typography === */
+.title-lg {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 1rem;
+}
+
+.title-green {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #16a34a;
+    margin-bottom: 1.5rem;
+}
+
+.text-body {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.text-bold {
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* === Buttons === */
+.btn {
+    display: inline-block;
+    border: none;
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-blue {
+    background-color: #3b82f6;
+    color: #fff;
+}
+.btn-blue:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-amber {
+    background-color: #d97706;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.btn-amber:hover {
+    background-color: #b45309;
+}
+.btn-amber:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.btn-green {
+    background-color: #22c55e;
+    color: #fff;
+}
+.btn-green:hover {
+    background-color: #15803d;
+}
+
+.btn-sm {
+    padding: 0.5rem 2rem;
+}
+
+/* === Mute Button === */
+#mute-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 110;
+    transition: background 0.2s;
+}
+#mute-btn:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+/* === Emoji Selectors === */
+.emoji-btn {
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    filter: grayscale(100%);
+}
+.emoji-btn:hover {
+    transform: scale(1.2);
+    filter: grayscale(0%);
+}
+.emoji-btn.selected {
+    filter: grayscale(0%);
+    transform: scale(1.1);
+    background: rgba(255, 200, 0, 0.3);
+    border-radius: 50%;
+}
+
+.emoji-row {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.emoji-row-reverse {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-direction: row-reverse;
+}
+
+.selected-display {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* === Card Animation (Level 2 chest modal) === */
+.perspective-container {
+    perspective: 800px;
+}
+
+#animation-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 80;
+    pointer-events: auto;
+    transition: opacity 0.3s;
+}
+
+.modal-inner {
+    position: relative;
+    width: 100%;
+    max-width: 28rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 2rem;
+    height: 500px;
+}
+
+.principle-card {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px) scale(0.2);
+    opacity: 0;
+    width: 320px;
+    background: #fffbeb;
+    border: 3px solid #d97706;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+.principle-card.emerge {
+    transform: translateX(-50%) translateY(0px) scale(1);
+    opacity: 1;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #b45309;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    color: #1f2937;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* === Chest Animation (CSS) === */
+.chest-wrapper {
+    position: relative;
+    width: 100px;
+    height: 80px;
+    margin: 0 auto 2rem;
+    z-index: 20;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.chest-base {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: #8B4513;
+    border: 3px solid #4a2509;
+    border-radius: 4px;
+    box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+.chest-base::before,
+.chest-base::after {
+    content: '';
+    position: absolute;
+    background: #DAA520;
+    width: 8px;
+    height: 100%;
+    top: 0;
+    border-left: 1px solid #4a2509;
+    border-right: 1px solid #4a2509;
+}
+.chest-base::before { left: 15px; }
+.chest-base::after  { right: 15px; }
+
+.chest-lid {
+    position: absolute;
+    bottom: 47px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: #A0522D;
+    border: 3px solid #4a2509;
+    border-radius: 50px 50px 0 0;
+    transform-origin: bottom center;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 2;
+    box-shadow: inset 0 8px 10px rgba(0, 0, 0, 0.3);
+}
+.chest-lid::before,
+.chest-lid::after {
+    content: '';
+    position: absolute;
+    background: #DAA520;
+    width: 8px;
+    height: 100%;
+    bottom: 0;
+    border-left: 1px solid #4a2509;
+    border-right: 1px solid #4a2509;
+}
+.chest-lid::before { left: 15px; }
+.chest-lid::after  { right: 15px; }
+
+.chest-lock {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 20px;
+    background: #DAA520;
+    border: 2px solid #4a2509;
+    border-radius: 2px;
+    z-index: 3;
+}
+.chest-lock::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 6px;
+    background: #333;
+    border-radius: 1px;
+}
+
+.chest-lid.open {
+    transform: rotateX(100deg);
+}
+
+/* === Survey sections === */
+.survey-section {
+    margin-bottom: 1.5rem;
+    text-align: right;
+}
+
+.survey-section:last-of-type {
+    margin-bottom: 2rem;
+}

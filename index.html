@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק דיג - 3 שלבים</title>
+    <meta name="description" content="משחק דיג חינוכי בשלושה שלבים - אספו אוצרות וגלו עקרונות הוק">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <button id="mute-btn" title="השתק סאונד">🔊</button>
+
+    <!-- Top HUD (visible during gameplay) -->
+    <div id="game-ui" class="hidden">
+        <div class="hud-inner">
+            <div id="level-display" class="hud-box">שלב 1</div>
+            <div id="message-display" class="hud-box hud-message">הטל את החכה כדי לאסוף תיבה</div>
+            <div id="score-display" class="hud-box hud-score">נקודות: 0</div>
+        </div>
+    </div>
+
+    <div id="ui-layer">
+        <!-- Start Screen -->
+        <div id="start-screen" class="ui-box screen-center ui-overlay">
+            <h1 class="title-lg">משחק דיג - 3 שלבים</h1>
+            <p class="text-body">בואו נצלול פנימה! עברו את שלושת השלבים ואספו אוצרות ממעמקי הים.</p>
+            <button id="start-btn" class="btn btn-blue">התחל לשחק</button>
+        </div>
+
+        <!-- Level Intro Screen -->
+        <div id="level-intro-screen" class="ui-box screen-center hidden ui-overlay">
+            <h2 id="level-intro-title" class="title-lg"></h2>
+            <p id="level-intro-text" class="text-body"></p>
+            <button id="start-level-btn" class="btn btn-blue btn-sm">המשך</button>
+        </div>
+
+        <!-- Survey 1 (Post Level 1) -->
+        <div id="survey-1-screen" class="ui-box screen-center hidden ui-overlay">
+            <h2 class="title-lg">שלב 1 הושלם!</h2>
+            <p class="text-body">איך התחושה להתחיל ללמוד את הקורס הזה בעזרת משחק?</p>
+            <div id="emoji-container-1" class="emoji-row">
+                <span class="emoji-btn" data-emoji="🤩">🤩</span>
+                <span class="emoji-btn" data-emoji="😊">😊</span>
+                <span class="emoji-btn" data-emoji="🤔">🤔</span>
+                <span class="emoji-btn" data-emoji="😕">😕</span>
+                <span class="emoji-btn" data-emoji="😴">😴</span>
+            </div>
+            <div class="selected-display">בחרת: <span id="selected-emojis-display" style="font-weight:700"></span></div>
+            <button id="submit-survey-1-btn" class="btn btn-blue btn-sm">המשך</button>
+        </div>
+
+        <!-- Animation Modal (Level 2) -->
+        <div id="animation-modal" class="hidden ui-overlay">
+            <div class="modal-inner perspective-container">
+                <!-- The Card -->
+                <div id="principle-card" class="principle-card">
+                    <h2 id="card-title" class="card-title"></h2>
+                    <p id="card-text" class="card-text"></p>
+                    <button id="close-card-btn" class="btn btn-amber" style="align-self:center">המשך</button>
+                </div>
+
+                <!-- The Chest -->
+                <div class="chest-wrapper">
+                    <div id="chest-lid" class="chest-lid"></div>
+                    <div class="chest-base">
+                        <div class="chest-lock"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey 2 (Final) -->
+        <div id="survey-2-screen" class="ui-box screen-center hidden ui-overlay">
+            <h2 class="title-green">כל הכבוד, סיימת!</h2>
+
+            <div class="survey-section">
+                <p class="text-bold">1. כמה נהנית לקבל נקודות?</p>
+                <div id="rating-1" class="emoji-row-reverse">
+                    <span class="emoji-btn single-emoji" data-val="1">🤩</span>
+                    <span class="emoji-btn single-emoji" data-val="2">😊</span>
+                    <span class="emoji-btn single-emoji" data-val="3">😐</span>
+                    <span class="emoji-btn single-emoji" data-val="4">😕</span>
+                    <span class="emoji-btn single-emoji" data-val="5">😡</span>
+                </div>
+            </div>
+
+            <div class="survey-section">
+                <p class="text-bold">2. כמה נהנית מהאינטראקציה והאתגר?</p>
+                <div id="rating-2" class="emoji-row-reverse">
+                    <span class="emoji-btn single-emoji" data-val="1">🤩</span>
+                    <span class="emoji-btn single-emoji" data-val="2">😊</span>
+                    <span class="emoji-btn single-emoji" data-val="3">😐</span>
+                    <span class="emoji-btn single-emoji" data-val="4">😕</span>
+                    <span class="emoji-btn single-emoji" data-val="5">😡</span>
+                </div>
+            </div>
+
+            <button id="submit-survey-2-btn" class="btn btn-green">סיום</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>

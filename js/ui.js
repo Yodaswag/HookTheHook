@@ -12,10 +12,13 @@ export function initUI(callbacks) {
     uiCallbacks = callbacks;
 
     // Mute button
-    document.getElementById('mute-btn').addEventListener('click', (e) => {
+    const muteBtn = document.getElementById('mute-btn');
+    updateMuteButton(muteBtn, getIsMuted());
+
+    muteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const muted = toggleMute();
-        document.getElementById('mute-btn').innerText = muted ? '🔇' : '🔊';
+        updateMuteButton(muteBtn, muted);
     });
 
     // Start button
@@ -75,9 +78,19 @@ function initEmojiSelection() {
                 selectedEmojis.push(emoji);
                 btn.classList.add('selected');
             }
-            document.getElementById('selected-emojis-display').innerText = selectedEmojis.join(' ');
+            document.getElementById('selected-emojis-display').innerText = selectedEmojis
+                .map(value => document.querySelector(`#emoji-container-1 [data-emoji="${value}"]`)?.getAttribute('aria-label') || value)
+                .join(', ');
         });
     });
+}
+
+function updateMuteButton(button, muted) {
+    const label = muted ? 'הפעל סאונד' : 'השתק סאונד';
+    button.classList.toggle('is-muted', muted);
+    button.title = label;
+    button.setAttribute('aria-label', label);
+    button.setAttribute('aria-pressed', String(muted));
 }
 
 function setupSingleEmojiRating(containerId) {

@@ -50,6 +50,10 @@ export function startCurrentLevel() {
     initLevel(currentLevel);
 }
 
+export function renderCurrentFrame() {
+    renderGame();
+}
+
 export function onSubmitSurvey1() {
     currentLevel = 2;
     ui.showLevelIntro(2);
@@ -247,10 +251,45 @@ function onReelInComplete() {
     }
 }
 
-// --- Game Loop ---
+function getHookEnd() {
+    return {
+        x: Math.round(HOOK_ORIGIN.x + Math.sin(hookAngle) * hookLength),
+        y: Math.round(HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength)
+    };
+}
 
-function gameLoop() {
-    const ctx = getCtx();
+function renderGameToText() {
+    const visibleScreens = Array.from(document.querySelectorAll('#ui-layer > div:not(.hidden)'))
+        .map(screen => screen.id);
+    return JSON.stringify({
+        coordinateSystem: 'virtual 800 by 800 canvas, origin top-left, x right, y down',
+        level: currentLevel,
+        mode: hookState,
+        score,
+        hook: {
+            origin: HOOK_ORIGIN,
+            end: getHookEnd(),
+            angle: Number(hookAngle.toFixed(3)),
+            length: Math.round(hookLength)
+        },
+        progress: {
+            chestsCollected,
+            level3CollectedCount
+        },
+        visibleScreens,
+        items: items.map(item => ({
+            id: item.id,
+            type: item.type,
+            x: Math.round(item.x),
+            y: Math.round(item.y),
+            caught: Boolean(item.caught),
+            collected: Boolean(item.collected),
+            correct: item.isCorrectStatement
+        }))
+    });
+}
+
+function stepGame() {
     frameCount++;
 
     // --- Update ---
@@ -310,7 +349,7 @@ function gameLoop() {
     }
 
     // Animate collected items sliding to targets
-    if (currentLevel === 3 && (hookState === 'LEVEL3_END' || hookState === 'SHOW_FINAL_ANSWERS')) {
+    if (currentLevel === 3) {
         items.forEach(item => {
             if (item.collected) {
                 item.x += (item.targetX - item.x) * 0.1;
@@ -320,7 +359,12 @@ function gameLoop() {
         });
     }
 
-    // --- Draw ---
+}
+
+function renderGame() {
+    const ctx = getCtx();
+    if (!ctx) return;
+
     drawBackground(ctx);
     drawLightRays(ctx);
     drawBubbles(ctx, bubbles);
@@ -338,6 +382,25 @@ function gameLoop() {
     }
 
     drawFloatingTexts(ctx, floatingTexts);
+}
+
+// --- Game Loop ---
+
+function gameLoop() {
+    stepGame();
+    renderGame();
 
     animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+if (typeof window !== 'undefined') {
+    window.render_game_to_text = renderGameToText;
+    window.advanceTime = (ms = 16.67) => {
+        const steps = Math.max(1, Math.round(ms / (1000 / 60)));
+        for (let i = 0; i < steps; i++) {
+            stepGame();
+        }
+        renderGame();
+        return renderGameToText();
+    };
 }

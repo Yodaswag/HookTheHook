@@ -33,3 +33,5 @@ initUI({
         game.onSubmitSurvey2();
     }
 });
+
+game.renderCurrentFrame();

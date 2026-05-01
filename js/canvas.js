@@ -91,7 +91,7 @@ function resizeCanvas() {
     if (muteBtn) {
         muteBtn.style.position = 'absolute';
         muteBtn.style.left = (offsetX + 12) + 'px';
-        muteBtn.style.top = (offsetY + 12) + 'px';
+        muteBtn.style.top = (offsetY + size - 60) + 'px';
     }
 
     // HiDPI: increase internal resolution for sharp rendering

@@ -14,7 +14,7 @@ export function initInput(callback) {
 }
 
 function handleDrop(e) {
-    if (e.target.id === 'mute-btn') return;
+    if (e.target.closest && e.target.closest('#mute-btn')) return;
     if (e.target.closest && e.target.closest('.ui-overlay')) return;
     if (onDropCallback) {
         initAudio();

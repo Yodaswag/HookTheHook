@@ -11,6 +11,7 @@ const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 220 };
 const SWING_SPEED = 0.025;
 const DROP_SPEED = 8;
 const MAX_ANGLE = Math.PI / 2.5;
+const MIN_HOOK_LENGTH = 70;
 
 // --- Speed ---
 let gameSpeed = 1.0; // multiplier, 0.5 – 3.0
@@ -24,7 +25,7 @@ let score = 0;
 let hookState = 'IDLE';
 let hookAngle = -MAX_ANGLE;
 let hookAngleDir = 1;
-let hookLength = 50;
+let hookLength = MIN_HOOK_LENGTH;
 let caughtItem = null;
 let items = [];
 let bubbles = [];
@@ -126,7 +127,7 @@ function initLevel(level) {
     currentLevel = level;
     chestsCollected = 0;
     caughtItem = null;
-    hookLength = 50;
+    hookLength = MIN_HOOK_LENGTH;
     hookState = 'SWINGING';
     floatingTexts = [];
     level3CollectedCount = 0;
@@ -189,7 +190,7 @@ function processCatch(item) {
 }
 
 function onReelInComplete() {
-    hookLength = 50;
+    hookLength = MIN_HOOK_LENGTH;
 
     if (!caughtItem) {
         hookState = 'SWINGING';
@@ -353,7 +354,7 @@ function stepGame() {
                 caughtItem.y = HOOK_ORIGIN.y + Math.cos(hookAngle) * hookLength + caughtItem.height / 2;
             }
         }
-        if (hookLength <= 50) {
+        if (hookLength <= MIN_HOOK_LENGTH) {
             onReelInComplete();
         }
     }

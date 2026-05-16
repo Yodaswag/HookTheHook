@@ -4,6 +4,7 @@
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT } from './canvas.js';
 
 const seaLevelY = 230;
+const waveHeight = 40;
 
 export function drawBackground(ctx, frameCount) {
     if (bgImg.naturalWidth > 0) {
@@ -30,7 +31,6 @@ export function drawWaves(ctx, frameCount) {
 
         // Waves should be small and positioned just below the boat
         // height smaller than the min length of the hook string (which is 50)
-        const waveHeight = 40;
         const waveY = 230;
         const waveWidth = wavesImg.naturalWidth * (waveHeight / wavesImg.naturalHeight);
 
@@ -48,16 +48,17 @@ export function drawWaves(ctx, frameCount) {
 function drawUnderwaterTexture(ctx) {
     if (waterImg.naturalWidth <= 0) return;
 
+    const textureY = seaLevelY + waveHeight;
     const sourceY = waterImg.naturalHeight * 0.1;
     const sourceHeight = waterImg.naturalHeight * 0.78;
-    const destinationHeight = VIRTUAL_HEIGHT - seaLevelY - waveHeight;
+    const destinationHeight = VIRTUAL_HEIGHT - textureY;
     const destinationRatio = VIRTUAL_WIDTH / destinationHeight;
     const sourceWidth = sourceHeight * destinationRatio;
     const sourceX = (waterImg.naturalWidth - sourceWidth) / 2;
 
     ctx.save();
     ctx.beginPath();
-    ctx.rect(0, seaLevelY, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - seaLevelY);
+    ctx.rect(0, textureY, VIRTUAL_WIDTH, destinationHeight);
     ctx.clip();
     ctx.drawImage(
         waterImg,
@@ -66,7 +67,7 @@ function drawUnderwaterTexture(ctx) {
         sourceWidth,
         sourceHeight,
         0,
-        seaLevelY,
+        textureY,
         VIRTUAL_WIDTH,
         destinationHeight
     );

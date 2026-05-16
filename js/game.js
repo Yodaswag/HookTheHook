@@ -7,7 +7,7 @@ import { drawBackground, drawWaves, drawLightRays, drawBubbles, drawItems, drawB
 import * as ui from './ui.js';
 
 // --- Constants ---
-const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 220 };
+const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 225 };
 const SWING_SPEED = 0.025;
 const DROP_SPEED = 8;
 const MAX_ANGLE = Math.PI / 2.5;

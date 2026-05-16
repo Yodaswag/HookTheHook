@@ -58,9 +58,9 @@ test('mute button children do not trigger gameplay input', () => {
 });
 
 test('surface art uses expected y coordinates', () => {
-    assert.match(game, /HOOK_ORIGIN\s*=\s*\{\s*x:\s*VIRTUAL_WIDTH\s*\/\s*2,\s*y:\s*220\s*\}/);
+    assert.match(game, /HOOK_ORIGIN\s*=\s*\{\s*x:\s*VIRTUAL_WIDTH\s*\/\s*2,\s*y:\s*225\s*\}/);
     assert.match(renderer, /const\s+waveY\s*=\s*220\b/);
-    assert.match(renderer, /const\s+boatY\s*=\s*240\s*-\s*h\b/);
+    assert.match(renderer, /const\s+boatY\s*=\s*245\s*-\s*h\b/);
 });
 
 test('underwater texture stays below the sea line and behind the seabed', () => {

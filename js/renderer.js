@@ -294,6 +294,9 @@ wavesImg.src = 'assets/Hook%20Game/hook-game-background-waves.png';
 const shipImg = new Image();
 shipImg.src = 'assets/Hook%20Game/ship.png';
 
+const arrowImg = new Image();
+arrowImg.src = 'assets/Hook Game/arrow.png';
+
 const visualAssets = [
     tatteredPageImg,
     anchorImg,
@@ -302,7 +305,8 @@ const visualAssets = [
     bgImg,
     waterImg,
     wavesImg,
-    shipImg
+    shipImg,
+    arrowImg
 ];
 
 export function waitForVisualAssets() {
@@ -399,13 +403,13 @@ export function drawBoat(ctx) {
         const w = targetWidth;
         const h = shipImg.naturalHeight * scale;
 
-        const boatY = 240 - h;
+        const boatY = 245 - h;
 
         ctx.drawImage(shipImg, cx - w / 2, boatY, w, h);
     } else {
         // Fallback boat
         ctx.fillStyle = "#4f2a16";
-        ctx.fillRect(cx - 60, 40, 120, 30);
+        ctx.fillRect(cx - 60, 45, 120, 30);
     }
     ctx.restore();
 }
@@ -509,23 +513,31 @@ export function drawFinalScreen(ctx, score) {
     ctx.fillText("מה למדנו? עקרונות הוק בלמידה משולבת משחק", VIRTUAL_WIDTH / 2, 202);
 
     ctx.fillStyle = "#e8f5ff";
-    ctx.font = "bold 14px Trebuchet MS, Arial, system-ui";
-    ctx.fillText("גללו מטה לסיכום וסיום המקטע", VIRTUAL_WIDTH / 2, 223);
+    ctx.font = "bold 18px Trebuchet MS, Arial, system-ui";
+    ctx.fillText("גללו מטה ולחצו על הבא", VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 80);
 
-    ctx.save();
-    ctx.translate(VIRTUAL_WIDTH / 2, 228);
-    ctx.fillStyle = "#78aebf";
-    ctx.beginPath();
-    ctx.moveTo(0, 22);
-    ctx.lineTo(-15, 4);
-    ctx.lineTo(-7, 4);
-    ctx.lineTo(-7, -14);
-    ctx.lineTo(7, -14);
-    ctx.lineTo(7, 4);
-    ctx.lineTo(15, 4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+    if (arrowImg.naturalWidth > 0) {
+        ctx.save();
+        const arrowW = 40;
+        const arrowH = arrowImg.naturalHeight * (arrowW / arrowImg.naturalWidth);
+        ctx.drawImage(arrowImg, VIRTUAL_WIDTH / 2 - arrowW / 2, VIRTUAL_HEIGHT - 55, arrowW, arrowH);
+        ctx.restore();
+    } else {
+        ctx.save();
+        ctx.translate(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 45);
+        ctx.fillStyle = "#78aebf";
+        ctx.beginPath();
+        ctx.moveTo(0, 15);
+        ctx.lineTo(-15, -3);
+        ctx.lineTo(-7, -3);
+        ctx.lineTo(-7, -21);
+        ctx.lineTo(7, -21);
+        ctx.lineTo(7, -3);
+        ctx.lineTo(15, -3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
 
     ctx.restore();
 }

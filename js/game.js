@@ -3,11 +3,11 @@
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT, getCtx } from './canvas.js';
 import { playCastSound, playCatchSound, playReelSound, playBombSound, playErrorSound, playWinSound } from './audio.js';
 import { createLevelItems, level3Slots, principles } from './levels.js';
-import { drawBackground, drawLightRays, drawBubbles, drawItems, drawBoat, drawHook, drawFloatingTexts, drawFinalScreen } from './renderer.js';
+import { drawBackground, drawWaves, drawLightRays, drawBubbles, drawItems, drawBoat, drawHook, drawFloatingTexts, drawFinalScreen } from './renderer.js';
 import * as ui from './ui.js';
 
 // --- Constants ---
-const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 90 };
+const HOOK_ORIGIN = { x: VIRTUAL_WIDTH / 2, y: 220 };
 const SWING_SPEED = 0.025;
 const DROP_SPEED = 8;
 const MAX_ANGLE = Math.PI / 2.5;
@@ -57,6 +57,10 @@ export function startCurrentLevel() {
 }
 
 export function renderCurrentFrame() {
+    if (!animationFrameId) {
+        gameLoop();
+        return;
+    }
     renderGame();
 }
 
@@ -371,13 +375,14 @@ function renderGame() {
     const ctx = getCtx();
     if (!ctx) return;
 
-    drawBackground(ctx);
-    drawLightRays(ctx);
-    drawBubbles(ctx, bubbles);
+    drawBackground(ctx, frameCount);
+    // drawLightRays(ctx);
+    // drawBubbles(ctx, bubbles);
     drawItems(ctx, items, caughtItem, hookState, frameCount);
 
     if (hookState !== 'SHOW_FINAL_ANSWERS') {
         drawBoat(ctx);
+        drawWaves(ctx, frameCount);
         if (hookState !== 'LEVEL3_END') {
             drawHook(ctx, HOOK_ORIGIN, hookAngle, hookLength);
         }

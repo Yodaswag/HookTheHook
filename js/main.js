@@ -5,6 +5,7 @@ import { initAudio } from './audio.js';
 import { initInput } from './input.js';
 import { initUI } from './ui.js';
 import * as game from './game.js';
+import { waitForVisualAssets } from './renderer.js';
 
 // Initialize canvas scaling
 initCanvas('gameCanvas');
@@ -37,4 +38,6 @@ initUI({
     }
 });
 
-game.renderCurrentFrame();
+waitForVisualAssets().then(() => {
+    game.renderCurrentFrame();
+});

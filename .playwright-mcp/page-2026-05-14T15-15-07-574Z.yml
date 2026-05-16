@@ -1,0 +1,9 @@
+- generic [ref=e2]:
+  - button "השתק סאונד" [ref=e4] [cursor=pointer]:
+    - img [ref=e5]
+  - button "שנה מהירות" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - generic [ref=e12]:
+    - heading "HookTheHook" [level=1] [ref=e13]
+    - paragraph [ref=e14]: בואו נצלול פנימה! עברו את שלושת השלבים ואספו אוצרות ממעמקי הים.
+    - button "התחל לשחק" [ref=e15] [cursor=pointer]

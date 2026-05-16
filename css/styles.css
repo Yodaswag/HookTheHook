@@ -1,24 +1,25 @@
-/* styles.css — All styles for HookTheHook (replaces Tailwind + inline) */
+/* styles.css - HookTheHook UI shell */
 
-/* === Reset & Base === */
 *, *::before, *::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
+html,
 body {
     margin: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 18%, rgba(236, 205, 138, 0.22), transparent 28%),
-        linear-gradient(145deg, #102a37 0%, #071923 48%, #2c1c13 100%);
-    touch-action: none;
-    font-family: "Trebuchet MS", "Arial", system-ui, -apple-system, sans-serif;
+    background: linear-gradient(145deg, #102a37 0%, #071923 48%, #2c1c13 100%);
     color: #24170f;
+    font-family: "Trebuchet MS", Arial, system-ui, sans-serif;
+    touch-action: none;
 }
 
-/* === Game Container === */
+button {
+    font: inherit;
+}
+
 #game-container {
     position: relative;
     width: 100vw;
@@ -28,28 +29,20 @@ body {
     justify-content: center;
 }
 
-/* === Canvas === */
 canvas {
     background: #126a8d;
     border: 4px solid #4b2f1f;
-    box-shadow:
-        0 18px 55px rgba(0, 0, 0, 0.5),
-        0 0 0 8px rgba(191, 145, 73, 0.35),
-        inset 0 0 65px rgba(4, 18, 30, 0.35);
-    /* border-radius is set dynamically by canvas.js to scale with the square */
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(191, 145, 73, 0.35);
 }
 
-/* === UI Layer (sits on top of canvas, positioned by canvas.js) === */
 #ui-layer {
     pointer-events: none;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 50;
 }
 
-/* === Top HUD bar (positioned by canvas.js) === */
 #game-ui {
     display: flex;
     align-items: flex-start;
@@ -61,34 +54,29 @@ canvas {
 
 #game-ui .hud-inner {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
-    max-width: 800px;
     padding: 0 1rem;
     gap: 0.5rem;
 }
 
 .hud-box {
-    background:
-        linear-gradient(180deg, rgba(255, 246, 218, 0.95), rgba(229, 192, 124, 0.92));
+    background: linear-gradient(180deg, rgba(255, 246, 218, 0.96), rgba(229, 192, 124, 0.94));
     border: 2px solid rgba(88, 55, 29, 0.72);
+    border-radius: 8px;
     padding: 0.5rem 0.9rem;
-    border-radius: 0.45rem;
     font-weight: 700;
     font-size: clamp(0.82rem, 2.2vw, 1.05rem);
     color: #2b1b11;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
     white-space: nowrap;
     box-shadow: 0 4px 14px rgba(20, 11, 5, 0.2);
 }
 
 .hud-message {
     text-align: center;
-    flex: 0 1 clamp(190px, 42%, 300px);
-    min-width: 190px;
+    flex: 0 1 320px;
     white-space: normal;
-    transition: background-color 0.3s;
     line-height: 1.25;
 }
 
@@ -101,88 +89,75 @@ canvas {
     color: #651818;
 }
 
-/* === Hidden utility === */
 .hidden {
     display: none !important;
-}
-
-/* === UI Box (modal cards) === */
-.ui-box {
-    pointer-events: auto;
-    position: relative;
-    background: url('../assets/TatteredPage-TextBG.png') no-repeat center center;
-    background-size: 100% 100%;
-    padding: clamp(2rem, 6vw, 3rem);
-    text-align: center;
-    max-width: 480px;
-    width: 90%;
-    z-index: 50;
-    min-height: 250px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    filter: drop-shadow(0 12px 24px rgba(21, 11, 5, 0.45));
-}
-
-.ui-box::before {
-    display: none;
 }
 
 .ui-overlay {
     pointer-events: auto;
 }
 
-/* === Screen centering (for overlays that need to be centered in the viewport) === */
+.ui-box {
+    pointer-events: auto;
+    width: min(90%, 500px);
+    min-height: 250px;
+    padding: clamp(2rem, 6vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: url('../assets/Hook Game/tattered-page.png') no-repeat center / 100% 100%;
+    filter: drop-shadow(0 12px 24px rgba(21, 11, 5, 0.45));
+}
+
 .screen-center {
     margin: auto;
 }
 
-/* === Typography === */
-.title-lg {
-    font-size: clamp(1.6rem, 5vw, 2.3rem);
+#start-screen {
+    width: min(92%, 540px);
+    min-height: 320px;
+}
+
+.title-lg,
+.title-green {
+    margin: 0 0 1rem;
     font-weight: 700;
+    font-size: clamp(1.6rem, 5vw, 2.3rem);
+}
+
+.title-lg {
     color: #6b2f12;
-    margin-bottom: 1rem;
-    text-shadow: 0 1px 0 rgba(255, 244, 210, 0.8);
 }
 
 .title-green {
-    font-size: clamp(1.6rem, 5vw, 2.15rem);
-    font-weight: 700;
     color: #166534;
-    margin-bottom: 1.5rem;
 }
 
 .text-body {
+    margin: 0 0 1.5rem;
     font-size: clamp(1rem, 2.8vw, 1.125rem);
-    margin-bottom: 1.5rem;
     line-height: 1.6;
     color: #3c2716;
 }
 
 .text-bold {
+    margin: 0 0 0.5rem;
     font-weight: 700;
     font-size: 1.125rem;
-    margin-bottom: 0.5rem;
 }
 
-.text-right {
-    text-align: right;
-}
-
-/* === Buttons === */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 2px solid rgba(59, 32, 14, 0.35);
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    cursor: pointer;
     font-weight: 700;
     font-size: clamp(1rem, 3vw, 1.2rem);
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: filter 0.2s, transform 0.1s, box-shadow 0.2s;
     box-shadow: 0 5px 0 rgba(53, 30, 14, 0.28), 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
@@ -191,67 +166,43 @@ canvas {
 }
 
 .btn-blue {
-    background: linear-gradient(180deg, #0f91b8, #075372);
     color: #fffaf0;
-}
-.btn-blue:hover {
-    filter: brightness(1.08);
+    background: linear-gradient(180deg, #0f91b8, #075372);
 }
 
 .btn-amber {
-    background: linear-gradient(180deg, #e6a833, #9f5b12);
     color: #fffaf0;
-}
-.btn-amber:hover {
-    filter: brightness(1.08);
-}
-.btn-amber:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    box-shadow: none;
+    background: linear-gradient(180deg, #e6a833, #9f5b12);
 }
 
 .btn-green {
-    background: linear-gradient(180deg, #2fbf6a, #146c3d);
     color: #fffaf0;
-}
-.btn-green:hover {
-    filter: brightness(1.08);
+    background: linear-gradient(180deg, #2fbf6a, #146c3d);
 }
 
 .btn-sm {
     padding: 0.5rem 2rem;
 }
 
-/* === Mute Button === */
-#mute-btn {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
+#mute-btn,
+#speed-btn {
     pointer-events: auto;
-    background: linear-gradient(180deg, #fff2c7, #d89a38);
-    border: 2px solid rgba(75, 47, 31, 0.75);
-    border-radius: 50%;
+    z-index: 110;
     width: 48px;
     height: 48px;
-    color: #2b1b11;
     display: flex;
-    justify-content: center;
     align-items: center;
-    cursor: pointer;
+    justify-content: center;
+    border: 2px solid rgba(75, 47, 31, 0.75);
+    border-radius: 50%;
+    color: #2b1b11;
+    background: linear-gradient(180deg, #fff2c7, #d89a38);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    z-index: 110;
-    transition: filter 0.2s, transform 0.1s;
-}
-#mute-btn:hover {
-    filter: brightness(1.08);
+    cursor: pointer;
 }
 
-#mute-btn:active {
-    transform: scale(0.96);
-}
-
-.sound-icon {
+.sound-icon,
+#speed-btn svg {
     width: 26px;
     height: 26px;
     fill: none;
@@ -261,19 +212,7 @@ canvas {
     stroke-linejoin: round;
 }
 
-.sound-icon path:first-child {
-    fill: currentColor;
-    stroke: none;
-}
-
-.sound-icon-off {
-    display: none;
-}
-
-#mute-btn.is-muted {
-    color: #991b1b;
-}
-
+#mute-btn .sound-icon-off,
 #mute-btn.is-muted .sound-icon-on {
     display: none;
 }
@@ -282,335 +221,162 @@ canvas {
     display: block;
 }
 
-/* === Emoji Selectors === */
-.emoji-btn {
-    font-size: 2.5rem;
-    cursor: pointer;
-    transition: transform 0.2s, filter 0.2s, background-color 0.2s;
-    filter: grayscale(100%);
-    display: inline-flex;
+.speed-panel {
+    pointer-events: auto;
+    z-index: 110;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 210px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid rgba(75, 47, 31, 0.75);
+    border-radius: 8px;
+    background: rgba(255, 242, 199, 0.96);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.speed-label,
+.speed-value {
+    font-weight: 700;
+}
+
+.speed-slider {
+    flex: 1;
+}
+
+.emoji-row,
+.emoji-row-reverse {
+    display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-}
-.emoji-btn:hover {
-    transform: scale(1.2);
-    filter: grayscale(0%);
-}
-.emoji-btn.selected {
-    transform: scale(1.1);
-    filter: grayscale(0%);
-    background: rgba(255,200,0,0.3);
-    border-radius: 50%;
-}
-
-
-.emoji-row {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
+    gap: clamp(0.3rem, 1.2vw, 0.7rem);
+    margin: 0.5rem 0 1rem;
+    width: 100%;
+    min-width: 0;
 }
 
 .emoji-row-reverse {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-direction: row-reverse;
-    flex-wrap: wrap;
+    direction: ltr;
+}
+
+.emoji-btn {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+}
+
+.face-choice {
+    position: relative;
+    width: clamp(48px, 12vw, 74px);
+    height: clamp(48px, 12vw, 74px);
+    padding: 0;
+    border-radius: 8px;
+    overflow: visible;
+    transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+.face-choice:hover {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.24));
+}
+
+.face-choice.selected,
+.single-emoji.selected {
+    outline: 0;
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 8px 10px rgba(15, 145, 184, 0.35));
+}
+
+.face-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+.face-choice:focus-visible,
+.btn:focus-visible,
+#mute-btn:focus-visible,
+#speed-btn:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
 }
 
 .selected-display {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    color: #4b2f1f;
-}
-
-/* === Card Animation (Level 2 chest modal) === */
-.perspective-container {
-    perspective: 800px;
+    min-height: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
 }
 
 #animation-modal {
     position: absolute;
     inset: 0;
-    background: rgba(10, 26, 34, 0.78);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 80;
     pointer-events: auto;
-    transition: opacity 0.3s;
+    background: rgba(4, 18, 30, 0.55);
 }
 
 .modal-inner {
     position: relative;
-    width: 100%;
-    max-width: 28rem;
+    width: min(90%, 520px);
+    min-height: 360px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 2rem;
-    height: 500px;
+    justify-content: center;
 }
 
 .principle-card {
     position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px) scale(0.2);
-    opacity: 0;
-    width: 320px;
-    background: url('../assets/TatteredPage-TextBG.png') no-repeat center center;
-    background-size: 100% 100%;
-    padding: 2.5rem 1.5rem;
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 10;
-    filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.5));
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    top: 10px;
+    width: min(92%, 420px);
+    min-height: 190px;
+    padding: 2rem;
     text-align: center;
-    min-height: 220px;
+    background: url('../assets/Hook Game/tattered-page.png') no-repeat center / 100% 100%;
+    transform: translateY(120px) scale(0.8);
+    opacity: 0;
+    transition: transform 0.75s, opacity 0.75s;
 }
+
 .principle-card.emerge {
-    transform: translateX(-50%) translateY(0px) scale(1);
+    transform: translateY(0) scale(1);
     opacity: 1;
 }
 
 .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #7c2d12;
-    margin-bottom: 0.75rem;
+    margin: 0 0 0.75rem;
+    color: #6b2f12;
 }
 
 .card-text {
-    color: #2f2115;
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
+    margin: 0 0 1rem;
+    line-height: 1.5;
 }
 
-/* === Chest Animation (CSS) === */
 .chest-wrapper {
-    position: relative;
-    width: 100px;
-    height: 80px;
-    margin: 0 auto 2rem;
-    z-index: 20;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-}
-
-.chest-base {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 50px;
-    background: #8B4513;
-    border: 3px solid #4a2509;
-    border-radius: 4px;
-    box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.5);
-    z-index: 1;
-}
-.chest-base::before,
-.chest-base::after {
-    content: '';
-    position: absolute;
-    background: #DAA520;
-    width: 8px;
-    height: 100%;
-    top: 0;
-    border-left: 1px solid #4a2509;
-    border-right: 1px solid #4a2509;
-}
-.chest-base::before { left: 15px; }
-.chest-base::after  { right: 15px; }
-
-.chest-lid {
-    position: absolute;
-    bottom: 47px;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    background: #A0522D;
-    border: 3px solid #4a2509;
-    border-radius: 50px 50px 0 0;
-    transform-origin: bottom center;
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 2;
-    box-shadow: inset 0 8px 10px rgba(0, 0, 0, 0.3);
-}
-.chest-lid::before,
-.chest-lid::after {
-    content: '';
-    position: absolute;
-    background: #DAA520;
-    width: 8px;
-    height: 100%;
-    bottom: 0;
-    border-left: 1px solid #4a2509;
-    border-right: 1px solid #4a2509;
-}
-.chest-lid::before { left: 15px; }
-.chest-lid::after  { right: 15px; }
-
-.chest-lock {
-    position: absolute;
-    top: -10px;
+    bottom: -14px;
     left: 50%;
+    width: 184px;
+    height: 184px;
     transform: translateX(-50%);
-    width: 16px;
-    height: 20px;
-    background: #DAA520;
-    border: 2px solid #4a2509;
-    border-radius: 2px;
-    z-index: 3;
 }
-.chest-lock::after {
-    content: '';
+
+.chest-sprite {
     position: absolute;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 6px;
-    background: #333;
-    border-radius: 1px;
+    inset: 0;
+    background-image: url('../assets/Hook Game/Treasure Chest2-iso_custom_chest_opening_northeast.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
 }
 
-.chest-lid.open {
-    transform: rotateX(100deg);
-}
-
-/* === Survey sections === */
 .survey-section {
-    margin-bottom: 1.5rem;
-    text-align: right;
+    width: 100%;
+    margin-bottom: 1rem;
 }
-
-.survey-section:last-of-type {
-    margin-bottom: 2rem;
-}
-
-/* === Speed Button === */
-#speed-btn {
-    position: absolute;
-    top: 1rem;
-    left: 5rem; /* sits to the right of the mute button */
-    pointer-events: auto;
-    background: linear-gradient(180deg, #fff2c7, #d89a38);
-    border: 2px solid rgba(75, 47, 31, 0.75);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    color: #2b1b11;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    z-index: 110;
-    transition: filter 0.2s, transform 0.1s;
-}
-#speed-btn:hover  { filter: brightness(1.08); }
-#speed-btn:active { transform: scale(0.96); }
-#speed-btn svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-#speed-btn.is-active {
-    background: linear-gradient(180deg, #fde68a, #b45309);
-    color: #fff;
-    box-shadow: 0 0 0 3px rgba(251,191,36,0.55), 0 4px 14px rgba(0,0,0,0.25);
-}
-
-/* === Speed Panel === */
-.speed-panel {
-    position: absolute;
-    /* Drop below both icon buttons, aligned with the left edge */
-    top: 4.5rem;
-    left: 1rem;
-    pointer-events: auto;
-    background: linear-gradient(180deg, rgba(255,246,218,0.97), rgba(229,192,124,0.96));
-    border: 2px solid rgba(88,55,29,0.72);
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    z-index: 110;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.28);
-    transform-origin: top left;
-    transform: scaleY(0);
-    opacity: 0;
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
-    overflow: hidden;
-    white-space: nowrap;
-}
-.speed-panel:not(.hidden) {
-    transform: scaleY(1);
-    opacity: 1;
-}
-
-.speed-label {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #2b1b11;
-    user-select: none;
-}
-
-.speed-value {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #7c2d12;
-    min-width: 2.8rem;
-    text-align: center;
-    user-select: none;
-}
-
-/* Range slider theming */
-.speed-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    /* Force LTR so the fill track always goes left→right regardless of page RTL */
-    direction: ltr;
-    width: 130px;
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #075372 var(--pct, 20%), rgba(88,55,29,0.25) var(--pct, 20%));
-    outline: none;
-    cursor: pointer;
-    border: none;
-}
-.speed-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #f7c948, #c06b2d);
-    border: 2px solid rgba(75,47,31,0.75);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    cursor: grab;
-    transition: transform 0.15s;
-}
-.speed-slider::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.2); }
-.speed-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #f7c948, #c06b2d);
-    border: 2px solid rgba(75,47,31,0.75);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    cursor: grab;
-}
-

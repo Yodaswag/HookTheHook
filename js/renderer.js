@@ -3,96 +3,77 @@
 
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT } from './canvas.js';
 
-/**
- * Draw the underwater nautical chart background.
- */
-export function drawBackground(ctx) {
-    const gradient = ctx.createLinearGradient(0, 0, 0, VIRTUAL_HEIGHT);
-    gradient.addColorStop(0, "#39b7d5");
-    gradient.addColorStop(0.42, "#137a9d");
-    gradient.addColorStop(1, "#07324c");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+const seaLevelY = 220;
 
-    drawSurface(ctx);
-    drawChartMarks(ctx);
+export function drawBackground(ctx, frameCount) {
+    if (bgImg.naturalWidth > 0) {
+        // Make the background image larger than the canvas
+        const bgScale = 1.2;
+        const bgW = VIRTUAL_WIDTH * bgScale;
+        const bgH = VIRTUAL_HEIGHT * bgScale;
+        const bgX = (VIRTUAL_WIDTH - bgW) / 2;
+        const bgY = (VIRTUAL_HEIGHT - bgH) / 2;
+        ctx.drawImage(bgImg, bgX, bgY, bgW, bgH);
+    } else {
+        ctx.fillStyle = "#1C66A6";
+        ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+    }
+
+    drawUnderwaterTexture(ctx);
     drawSeabed(ctx);
-    drawFrame(ctx);
+    // Removed drawFrame as user requested only the new background image
 }
 
-function drawSurface(ctx) {
-    ctx.save();
-    ctx.fillStyle = "rgba(255, 244, 196, 0.28)";
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    for (let x = 0; x <= VIRTUAL_WIDTH; x += 40) {
-        ctx.quadraticCurveTo(x + 20, 30, x + 40, 18);
-    }
-    ctx.lineTo(VIRTUAL_WIDTH, 0);
-    ctx.closePath();
-    ctx.fill();
+export function drawWaves(ctx, frameCount) {
+    if (wavesImg.naturalWidth > 0) {
+        const speed = 0.2;
 
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.38)";
-    ctx.lineWidth = 3;
-    for (let y = 24; y < 70; y += 18) {
-        ctx.beginPath();
-        for (let x = 0; x <= VIRTUAL_WIDTH; x += 32) {
-            const waveY = y + Math.sin(x * 0.035 + y) * 4;
-            if (x === 0) ctx.moveTo(x, waveY);
-            else ctx.lineTo(x, waveY);
+        // Waves should be small and positioned just below the boat
+        // height smaller than the min length of the hook string (which is 50)
+        const waveHeight = 40;
+        const waveY = 220;
+        const waveWidth = wavesImg.naturalWidth * (waveHeight / wavesImg.naturalHeight);
+
+        // Step with an overlap to reduce gap between waves
+        const step = waveWidth * 0.75;
+        let xOffsetScaled = (frameCount * speed) % step;
+
+        // Tile the waves across the canvas
+        for (let x = -xOffsetScaled; x < VIRTUAL_WIDTH; x += step) {
+            ctx.drawImage(wavesImg, x, waveY, waveWidth, waveHeight);
         }
-        ctx.stroke();
     }
-    ctx.restore();
 }
 
-function drawChartMarks(ctx) {
+function drawUnderwaterTexture(ctx) {
+    if (waterImg.naturalWidth <= 0) return;
+
+    const sourceY = waterImg.naturalHeight * 0.1;
+    const sourceHeight = waterImg.naturalHeight * 0.78;
+    const destinationHeight = VIRTUAL_HEIGHT - seaLevelY;
+    const destinationRatio = VIRTUAL_WIDTH / destinationHeight;
+    const sourceWidth = sourceHeight * destinationRatio;
+    const sourceX = (waterImg.naturalWidth - sourceWidth) / 2;
+
     ctx.save();
-    ctx.globalAlpha = 0.22;
-    ctx.strokeStyle = "#f8e6ad";
-    ctx.fillStyle = "#f8e6ad";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 12]);
     ctx.beginPath();
-    ctx.moveTo(115, 245);
-    ctx.bezierCurveTo(250, 170, 360, 250, 430, 340);
-    ctx.bezierCurveTo(520, 455, 615, 390, 705, 510);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    drawMapPin(ctx, 120, 245, 12);
-    drawMapPin(ctx, 430, 340, 12);
-    drawMapPin(ctx, 705, 510, 12);
-
-    ctx.translate(670, 155);
-    ctx.rotate(-0.35);
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-        const r = i % 2 === 0 ? 38 : 13;
-        const a = i * Math.PI / 4;
-        const x = Math.cos(a) * r;
-        const y = Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.stroke();
+    ctx.rect(0, seaLevelY, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - seaLevelY);
+    ctx.clip();
+    ctx.drawImage(
+        waterImg,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        0,
+        seaLevelY,
+        VIRTUAL_WIDTH,
+        destinationHeight
+    );
     ctx.restore();
 }
 
-function drawMapPin(ctx, x, y, size) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.beginPath();
-    ctx.moveTo(-size, -size);
-    ctx.lineTo(size, size);
-    ctx.moveTo(size, -size);
-    ctx.lineTo(-size, size);
-    ctx.stroke();
-    ctx.restore();
-}
-
-function drawSeabed(ctx) {
+export function drawSeabed(ctx) {
     ctx.save();
     const sand = ctx.createLinearGradient(0, 660, 0, VIRTUAL_HEIGHT);
     sand.addColorStop(0, "rgba(225, 170, 88, 0.78)");
@@ -181,6 +162,12 @@ export function drawChest(ctx, scale = 1) {
     ctx.save();
     ctx.scale(scale, scale);
 
+    if (chestImg.naturalWidth > 0) {
+        ctx.drawImage(chestImg, -22, -24, 44, 44);
+        ctx.restore();
+        return;
+    }
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
     ctx.beginPath();
     ctx.ellipse(0, 16, 22, 7, 0, 0, Math.PI * 2);
@@ -228,6 +215,15 @@ export function drawChest(ctx, scale = 1) {
  * Draw a bomb at (0,0) in local coordinates.
  */
 export function drawBomb(ctx, radius, frameCount) {
+    if (bombImg.naturalWidth > 0) {
+        ctx.save();
+        const w = radius * 2.5;
+        const h = w * (bombImg.naturalHeight / bombImg.naturalWidth);
+        ctx.drawImage(bombImg, -w / 2, -h * 0.6, w, h);
+        ctx.restore();
+        return;
+    }
+
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
     ctx.beginPath();
@@ -274,7 +270,51 @@ export function drawBomb(ctx, radius, frameCount) {
 }
 
 const tatteredPageImg = new Image();
-tatteredPageImg.src = 'assets/TatteredPage-TextBG.png';
+tatteredPageImg.src = 'assets/Hook Game/tattered-page.png';
+
+const anchorImg = new Image();
+anchorImg.src = 'assets/Anchor.png';
+
+const bombImg = new Image();
+bombImg.src = 'assets/Bomb.png';
+
+const chestImg = new Image();
+chestImg.src = 'assets/Treasure chest - closed.png';
+
+const bgImg = new Image();
+bgImg.src = 'assets/Hook%20Game/hook-game-background.png';
+
+const waterImg = new Image();
+waterImg.src = 'assets/Hook%20Game/Water.png';
+
+const wavesImg = new Image();
+wavesImg.src = 'assets/Hook%20Game/hook-game-background-waves.png';
+
+const shipImg = new Image();
+shipImg.src = 'assets/Hook%20Game/ship.png';
+
+const visualAssets = [
+    tatteredPageImg,
+    anchorImg,
+    bombImg,
+    chestImg,
+    bgImg,
+    waterImg,
+    wavesImg,
+    shipImg
+];
+
+export function waitForVisualAssets() {
+    return Promise.all(
+        visualAssets.map((img) => {
+            if (img.complete) return Promise.resolve();
+            return new Promise((resolve) => {
+                img.addEventListener('load', resolve, { once: true });
+                img.addEventListener('error', resolve, { once: true });
+            });
+        })
+    );
+}
 
 /**
  * Draw a text box item (level 3) at (0,0) in local coordinates.
@@ -295,10 +335,6 @@ export function drawTextBox(ctx, item, frameCount) {
         ctx.fill();
         ctx.stroke();
     }
-
-    // Top loop decoration
-    ctx.fillStyle = "#b7791f";
-    ctx.beginPath(); ctx.arc(0, -item.height / 2, 6, 0, Math.PI, true); ctx.fill();
 
     // Mini chest in bottom-right corner
     ctx.save();
@@ -351,34 +387,24 @@ export function drawItems(ctx, items, caughtItem, hookState, frameCount) {
  */
 export function drawBoat(ctx) {
     const cx = VIRTUAL_WIDTH / 2;
-    const BY = 40; // vertical offset — shifts boat below the HUD bar
+
     ctx.save();
-    ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-    ctx.beginPath();
-    ctx.ellipse(cx, 58 + BY, 78, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
 
-    const hull = ctx.createLinearGradient(0, 18 + BY, 0, 54 + BY);
-    hull.addColorStop(0, "#a5652c");
-    hull.addColorStop(1, "#4f2a16");
-    ctx.fillStyle = hull;
-    ctx.beginPath();
-    ctx.moveTo(cx - 60, 20 + BY);
-    ctx.lineTo(cx + 60, 20 + BY);
-    ctx.lineTo(cx + 40, 50 + BY);
-    ctx.lineTo(cx - 40, 50 + BY);
-    ctx.fill();
-    ctx.strokeStyle = "#2b170c";
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    if (shipImg.naturalWidth > 0) {
+        // Boat bottom just below instruction rectangle (Y ~ 100)
+        // Let's make the boat smaller, e.g. width = 160px
+        const targetWidth = 160;
+        const scale = targetWidth / shipImg.naturalWidth;
+        const w = targetWidth;
+        const h = shipImg.naturalHeight * scale;
 
-    ctx.strokeStyle = "rgba(255, 224, 166, 0.55)";
-    ctx.lineWidth = 2;
-    for (let x = cx - 38; x <= cx + 38; x += 38) {
-        ctx.beginPath();
-        ctx.moveTo(x, 23 + BY);
-        ctx.lineTo(x - 10, 46 + BY);
-        ctx.stroke();
+        const boatY = 240 - h;
+
+        ctx.drawImage(shipImg, cx - w / 2, boatY, w, h);
+    } else {
+        // Fallback boat
+        ctx.fillStyle = "#4f2a16";
+        ctx.fillRect(cx - 60, 40, 120, 30);
     }
     ctx.restore();
 }
@@ -398,17 +424,26 @@ export function drawHook(ctx, hookOrigin, hookAngle, hookLength) {
     ctx.lineTo(endX, endY);
     ctx.stroke();
 
-    // Hook (arc at bottom of line)
-    ctx.strokeStyle = "#d1d5db";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(endX, endY + 10, 10, Math.PI, 0, true);
-    ctx.stroke();
-    ctx.strokeStyle = "#6b7280";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(endX, endY + 10, 10, Math.PI, 0, true);
-    ctx.stroke();
+    if (anchorImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.translate(endX, endY);
+        const w = 40;
+        const h = w * (anchorImg.naturalHeight / anchorImg.naturalWidth);
+        ctx.drawImage(anchorImg, -w / 2, 0, w, h);
+        ctx.restore();
+    } else {
+        // Hook (arc at bottom of line)
+        ctx.strokeStyle = "#d1d5db";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(endX, endY + 10, 10, Math.PI, 0, true);
+        ctx.stroke();
+        ctx.strokeStyle = "#6b7280";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(endX, endY + 10, 10, Math.PI, 0, true);
+        ctx.stroke();
+    }
 }
 
 /**
@@ -460,5 +495,36 @@ export function drawFinalScreen(ctx, score) {
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 24px Trebuchet MS, Arial, system-ui";
     ctx.fillText(`הניקוד הסופי שלכם: ${score}`, VIRTUAL_WIDTH / 2, 140);
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(18, 36, 42, 0.58)";
+    ctx.fillRect(140, 176, VIRTUAL_WIDTH - 280, 72);
+    ctx.strokeStyle = "#e7c46d";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(140, 176, VIRTUAL_WIDTH - 280, 72);
+
+    ctx.fillStyle = "#f8e7ab";
+    ctx.font = "bold 24px Trebuchet MS, Arial, system-ui";
+    ctx.fillText("מה למדנו? עקרונות הוק בלמידה משולבת משחק", VIRTUAL_WIDTH / 2, 202);
+
+    ctx.fillStyle = "#e8f5ff";
+    ctx.font = "bold 14px Trebuchet MS, Arial, system-ui";
+    ctx.fillText("גללו מטה לסיכום וסיום המקטע", VIRTUAL_WIDTH / 2, 223);
+
+    ctx.save();
+    ctx.translate(VIRTUAL_WIDTH / 2, 228);
+    ctx.fillStyle = "#78aebf";
+    ctx.beginPath();
+    ctx.moveTo(0, 22);
+    ctx.lineTo(-15, 4);
+    ctx.lineTo(-7, 4);
+    ctx.lineTo(-7, -14);
+    ctx.lineTo(7, -14);
+    ctx.lineTo(7, 4);
+    ctx.lineTo(15, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
     ctx.restore();
 }

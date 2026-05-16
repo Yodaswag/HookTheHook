@@ -59,12 +59,13 @@ export function createLevelItems(level) {
     else if (level === 3) {
         // Concave (U-Shape) layout
         const positions = [
-            { x: 90,  y: 280 },
-            { x: 200, y: 500 },
-            { x: 400, y: 660 },
-            { x: 600, y: 500 },
-            { x: 710, y: 280 }
+            { x: 100, y: 440 },
+            { x: 250, y: 520 },
+            { x: 400, y: 600 },
+            { x: 550, y: 520 },
+            { x: 700, y: 440 }
         ];
+
 
         // Shuffle for replayability
         let shuffled = [...level3Items].sort(() => Math.random() - 0.5);

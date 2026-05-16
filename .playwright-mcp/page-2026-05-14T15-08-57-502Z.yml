@@ -1,0 +1,16 @@
+- generic [ref=e2]:
+  - button "השתק סאונד" [ref=e4] [cursor=pointer]:
+    - img [ref=e5]
+  - button "שנה מהירות" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - generic [ref=e16]:
+    - heading "שלב 1 הושלם!" [level=2] [ref=e17]
+    - paragraph [ref=e18]: איך התחושה להתחיל ללמוד את הקורס הזה בעזרת משחק?
+    - generic [ref=e19]:
+      - button "מתרגש" [ref=e20] [cursor=pointer]
+      - button "שמח" [ref=e21] [cursor=pointer]
+      - button "נייטרלי" [ref=e22] [cursor=pointer]
+      - button "לא בטוח" [ref=e23] [cursor=pointer]
+      - button "מתוסכל" [ref=e24] [cursor=pointer]
+    - generic [ref=e25]: "בחרת: לא בטוח"
+    - button "המשך" [ref=e26] [cursor=pointer]

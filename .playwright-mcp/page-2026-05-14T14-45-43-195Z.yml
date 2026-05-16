@@ -1,0 +1,10 @@
+- generic [ref=e2]:
+  - button "השתק סאונד" [ref=e4] [cursor=pointer]:
+    - img [ref=e5]
+  - button "שנה מהירות" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - generic:
+    - generic:
+      - generic: "שלב 1: חימום"
+      - generic: אספו את תיבות האוצר, היזהרו מהפצצות!
+      - generic: "נקודות: 0"

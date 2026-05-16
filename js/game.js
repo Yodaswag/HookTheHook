@@ -16,7 +16,7 @@ const MAX_ANGLE = Math.PI / 2.5;
 let gameSpeed = 1.0; // multiplier, 0.5 – 3.0
 
 export function setGameSpeed(v) { gameSpeed = v; }
-export function getGameSpeed()  { return gameSpeed; }
+export function getGameSpeed() { return gameSpeed; }
 
 // --- State ---
 let currentLevel = 1;
@@ -165,7 +165,7 @@ function checkCollision(hx, hy) {
             hit = Math.hypot(item.x - hx, item.y - hy) < item.radius + 10;
         } else {
             hit = hx > item.x - item.width / 2 && hx < item.x + item.width / 2 &&
-                  hy > item.y - item.height && hy < item.y + item.height / 2;
+                hy > item.y - item.height && hy < item.y + item.height / 2;
         }
         if (hit) return item;
     }

@@ -95,10 +95,10 @@ export function onSubmitSurvey2() {
 
     // 2×2 grid for final showcase
     const finalTargets = [
-        { x: 250, y: 300, scale: 1.4 },
-        { x: 550, y: 300, scale: 1.4 },
-        { x: 250, y: 500, scale: 1.4 },
-        { x: 550, y: 500, scale: 1.4 }
+        { x: 250, y: 340, scale: 1.4 },
+        { x: 550, y: 340, scale: 1.4 },
+        { x: 250, y: 540, scale: 1.4 },
+        { x: 550, y: 540, scale: 1.4 }
     ];
 
     let idx = 0;
@@ -381,12 +381,16 @@ function renderGame() {
     // drawBubbles(ctx, bubbles);
     drawItems(ctx, items, caughtItem, hookState, frameCount);
 
-    if (hookState !== 'SHOW_FINAL_ANSWERS') {
-        drawBoat(ctx);
-        drawWaves(ctx, frameCount);
-        if (hookState !== 'LEVEL3_END') {
-            drawHook(ctx, HOOK_ORIGIN, hookAngle, hookLength);
-        }
+    const isFinal = hookState === 'SHOW_FINAL_ANSWERS';
+    const boatX = isFinal ? 750 : null;
+    const currentHookOrigin = isFinal ? { x: 750, y: HOOK_ORIGIN.y } : HOOK_ORIGIN;
+
+    drawBoat(ctx, boatX);
+    drawWaves(ctx, frameCount);
+    if (isFinal) {
+        drawHook(ctx, currentHookOrigin, 0, MIN_HOOK_LENGTH);
+    } else if (hookState !== 'LEVEL3_END') {
+        drawHook(ctx, currentHookOrigin, hookAngle, hookLength);
     }
 
     if (hookState === 'SHOW_FINAL_ANSWERS') {

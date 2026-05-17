@@ -390,8 +390,8 @@ export function drawItems(ctx, items, caughtItem, hookState, frameCount) {
 /**
  * Draw the boat at the top of the canvas.
  */
-export function drawBoat(ctx) {
-    const cx = VIRTUAL_WIDTH / 2;
+export function drawBoat(ctx, xOverride = null) {
+    const cx = xOverride !== null ? xOverride : VIRTUAL_WIDTH / 2;
 
     ctx.save();
 
@@ -484,47 +484,42 @@ export function drawFloatingTexts(ctx, floatingTexts) {
  */
 export function drawFinalScreen(ctx, score) {
     ctx.save();
-    ctx.fillStyle = "rgba(18, 36, 42, 0.62)";
-    ctx.fillRect(78, 56, VIRTUAL_WIDTH - 156, 116);
-    ctx.strokeStyle = "#e7c46d";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(78, 56, VIRTUAL_WIDTH - 156, 116);
 
-    ctx.fillStyle = "#facc15";
+    if (tatteredPageImg.naturalWidth > 0) {
+        const tw = 600;
+        const th = 260;
+        ctx.drawImage(tatteredPageImg, VIRTUAL_WIDTH / 2 - tw / 2, 10, tw, th);
+    }
+
+    ctx.fillStyle = "#1C66A6";
     ctx.font = "bold 42px Trebuchet MS, Arial, system-ui";
     ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0,0,0,0.5)";
-    ctx.shadowBlur = 10;
-    ctx.fillText("כל הכבוד! סיימתם בהצלחה", VIRTUAL_WIDTH / 2, 90);
+    ctx.shadowColor = "rgba(0,0,0,0.3)";
+    ctx.shadowBlur = 4;
+    ctx.fillText("כל הכבוד! סיימתם בהצלחה", VIRTUAL_WIDTH / 2, 80);
 
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#1C66A6";
     ctx.font = "bold 24px Trebuchet MS, Arial, system-ui";
-    ctx.fillText(`הניקוד הסופי שלכם: ${score}`, VIRTUAL_WIDTH / 2, 140);
-
     ctx.shadowBlur = 0;
-    ctx.fillStyle = "rgba(18, 36, 42, 0.58)";
-    ctx.fillRect(140, 176, VIRTUAL_WIDTH - 280, 72);
-    ctx.strokeStyle = "#e7c46d";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(140, 176, VIRTUAL_WIDTH - 280, 72);
+    ctx.fillText(`הניקוד הסופי שלכם: ${score}`, VIRTUAL_WIDTH / 2, 130);
 
-    ctx.fillStyle = "#f8e7ab";
+    ctx.fillStyle = "#1C66A6";
     ctx.font = "bold 24px Trebuchet MS, Arial, system-ui";
-    ctx.fillText("מה למדנו? עקרונות הוק בלמידה משולבת משחק", VIRTUAL_WIDTH / 2, 202);
+    ctx.fillText("מה למדנו? עקרנות הוק בלמידה מבוססת משחק", VIRTUAL_WIDTH / 2, 192);
 
     ctx.fillStyle = "#e8f5ff";
     ctx.font = "bold 18px Trebuchet MS, Arial, system-ui";
-    ctx.fillText("גללו מטה ולחצו על הבא", VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 80);
+    ctx.fillText("גללו מטה ולחצו על הבא", VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 65);
 
     if (arrowImg.naturalWidth > 0) {
         ctx.save();
         const arrowW = 40;
         const arrowH = arrowImg.naturalHeight * (arrowW / arrowImg.naturalWidth);
-        ctx.drawImage(arrowImg, VIRTUAL_WIDTH / 2 - arrowW / 2, VIRTUAL_HEIGHT - 55, arrowW, arrowH);
+        ctx.drawImage(arrowImg, VIRTUAL_WIDTH / 2 - arrowW / 2 + 10, VIRTUAL_HEIGHT - 62, arrowW, arrowH);
         ctx.restore();
     } else {
         ctx.save();
-        ctx.translate(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 45);
+        ctx.translate(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 42);
         ctx.fillStyle = "#78aebf";
         ctx.beginPath();
         ctx.moveTo(0, 15);

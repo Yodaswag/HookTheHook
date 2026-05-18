@@ -1,116 +1,145 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HookTheHook</title>
+    <title>תפוס ת'הוק</title>
     <meta name="description" content="משחק דיג חינוכי בשלושה שלבים">
-    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23075372"/><path d="M14 18h36l-6 18H20z" fill="%23a5652c"/><path d="M32 13v32" stroke="%23fff2c7" stroke-width="4" stroke-linecap="round"/></svg>'>
+    <link rel="icon"
+        href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23075372"/><path d="M14 18h36l-6 18H20z" fill="%23a5652c"/><path d="M32 13v32" stroke="%23fff2c7" stroke-width="4" stroke-linecap="round"/></svg>'>
     <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
-<div id="game-container">
-    <canvas id="gameCanvas"></canvas>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
 
-    <button id="mute-btn" type="button" title="השתק סאונד" aria-label="השתק סאונד" aria-pressed="false">
-        <svg class="sound-icon sound-icon-on" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 9v6h4l5 4V5L7 9H3z"></path>
-            <path d="M16 8.5a5 5 0 0 1 0 7"></path>
-            <path d="M18.5 6a8 8 0 0 1 0 12"></path>
-        </svg>
-        <svg class="sound-icon sound-icon-off" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 9v6h4l5 4V5L7 9H3z"></path>
-            <path d="M17 9l5 5"></path>
-            <path d="M22 9l-5 5"></path>
-        </svg>
-    </button>
+        <button id="mute-btn" type="button" title="השתק סאונד" aria-label="השתק סאונד" aria-pressed="false">
+            <svg class="sound-icon sound-icon-on" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 9v6h4l5 4V5L7 9H3z"></path>
+                <path d="M16 8.5a5 5 0 0 1 0 7"></path>
+                <path d="M18.5 6a8 8 0 0 1 0 12"></path>
+            </svg>
+            <svg class="sound-icon sound-icon-off" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 9v6h4l5 4V5L7 9H3z"></path>
+                <path d="M17 9l5 5"></path>
+                <path d="M22 9l-5 5"></path>
+            </svg>
+        </button>
 
-    <button id="speed-btn" type="button" title="שנה מהירות" aria-label="שנה מהירות" aria-pressed="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-        </svg>
-    </button>
-    <div id="speed-panel" class="speed-panel hidden" role="group" aria-label="בקרת מהירות">
-        <label for="speed-slider" class="speed-label">מהירות</label>
-        <input id="speed-slider" type="range" min="0.5" max="3" step="0.1" value="1" class="speed-slider">
-        <span id="speed-value" class="speed-value">x1.0</span>
+        <button id="speed-btn" type="button" title="שנה מהירות" aria-label="שנה מהירות" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+        </button>
+        <div id="speed-panel" class="speed-panel hidden" role="group" aria-label="בקרת מהירות">
+            <label for="speed-slider" class="speed-label">מהירות</label>
+            <input id="speed-slider" type="range" min="0.5" max="3" step="0.1" value="1" class="speed-slider">
+            <span id="speed-value" class="speed-value">x1.0</span>
+        </div>
+
+        <div id="game-ui" class="hidden">
+            <div class="hud-inner">
+                <div id="level-display" class="hud-box">שלב 1</div>
+                <div id="message-display" class="hud-box hud-message">הטל את החכה כדי לאסוף תיבה</div>
+                <div id="score-display" class="hud-box hud-score">נקודות: 0</div>
+            </div>
+        </div>
+
+        <div id="ui-layer">
+            <div id="start-screen" class="ui-box screen-center ui-overlay">
+                <h1 class="title-lg">תפוס ת'הוק</h1>
+                <p class="text-body">בואו נצלול פנימה! עברו את שלושת השלבים ואספו אוצרות ממעמקי הים.</p>
+                <button id="start-btn" class="btn btn-blue">התחל לשחק</button>
+            </div>
+
+            <div id="level-intro-screen" class="ui-box screen-center hidden ui-overlay">
+                <h2 id="level-intro-title" class="title-lg"></h2>
+                <p id="level-intro-text" class="text-body"></p>
+                <button id="start-level-btn" class="btn btn-blue btn-sm">המשך</button>
+            </div>
+
+            <div id="survey-1-screen" class="ui-box screen-center hidden ui-overlay">
+                <h2 class="title-lg">שלב 1 הושלם!</h2>
+                <p class="text-body">איך התחושה להתחיל ללמוד את הקורס הזה בעזרת משחק?</p>
+                <div id="emoji-container-1" class="emoji-row">
+                    <button class="emoji-btn face-choice" type="button" data-emoji="מתרגש" aria-label="מתרגש"><img
+                            class="face-img" src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
+                    <button class="emoji-btn face-choice" type="button" data-emoji="שמח" aria-label="שמח"><img
+                            class="face-img" src="assets/Hook Game/4-happy-pirate.png" alt=""></button>
+                    <button class="emoji-btn face-choice" type="button" data-emoji="נייטרלי" aria-label="נייטרלי"><img
+                            class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png" alt=""></button>
+                    <button class="emoji-btn face-choice" type="button" data-emoji="לא בטוח" aria-label="לא בטוח"><img
+                            class="face-img" src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
+                    <button class="emoji-btn face-choice" type="button" data-emoji="מתוסכל" aria-label="מתוסכל"><img
+                            class="face-img" src="assets/Hook Game/1-frustrated-pirate.png" alt=""></button>
+                </div>
+                <div class="selected-display">בחרת: <span id="selected-emojis-display"></span></div>
+                <button id="submit-survey-1-btn" class="btn btn-blue btn-sm">המשך</button>
+            </div>
+
+            <div id="animation-modal" class="hidden ui-overlay">
+                <div class="modal-inner perspective-container">
+                    <div id="principle-card" class="principle-card">
+                        <h2 id="card-title" class="card-title"></h2>
+                        <p id="card-text" class="card-text"></p>
+                        <button id="close-card-btn" class="btn btn-amber">המשך</button>
+                    </div>
+                    <div class="chest-wrapper">
+                        <div id="chest-sprite" class="chest-sprite" role="img" aria-label="תיבת אוצר נפתחת"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="survey-2-screen" class="ui-box screen-center hidden ui-overlay">
+                <h2 class="title-green">כל הכבוד, סיימת!</h2>
+                <div class="survey-section">
+                    <p class="text-bold">1. כמה נהנית לקבל נקודות?</p>
+                    <div id="rating-1" class="emoji-row">
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="1"
+                            aria-label="מאוד נהניתי"><img class="face-img"
+                                src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="2"
+                            aria-label="נהניתי"><img class="face-img" src="assets/Hook Game/4-happy-pirate.png"
+                                alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="3"
+                            aria-label="נייטרלי"><img class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png"
+                                alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="4"
+                            aria-label="פחות נהניתי"><img class="face-img"
+                                src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="5"
+                            aria-label="לא נהניתי"><img class="face-img" src="assets/Hook Game/1-frustrated-pirate.png"
+                                alt=""></button>
+                    </div>
+                </div>
+                <div class="survey-section">
+                    <p class="text-bold">2. כמה נהנית מהאינטראקציה והאתגר?</p>
+                    <div id="rating-2" class="emoji-row">
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="1"
+                            aria-label="מאוד נהניתי"><img class="face-img"
+                                src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="2"
+                            aria-label="נהניתי"><img class="face-img" src="assets/Hook Game/4-happy-pirate.png"
+                                alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="3"
+                            aria-label="נייטרלי"><img class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png"
+                                alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="4"
+                            aria-label="פחות נהניתי"><img class="face-img"
+                                src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
+                        <button class="emoji-btn single-emoji face-choice" type="button" data-val="5"
+                            aria-label="לא נהניתי"><img class="face-img" src="assets/Hook Game/1-frustrated-pirate.png"
+                                alt=""></button>
+                    </div>
+                </div>
+                <button id="submit-survey-2-btn" class="btn btn-green">סיום</button>
+            </div>
+        </div>
     </div>
 
-    <div id="game-ui" class="hidden">
-        <div class="hud-inner">
-            <div id="level-display" class="hud-box">שלב 1</div>
-            <div id="message-display" class="hud-box hud-message">הטל את החכה כדי לאסוף תיבה</div>
-            <div id="score-display" class="hud-box hud-score">נקודות: 0</div>
-        </div>
-    </div>
-
-    <div id="ui-layer">
-        <div id="start-screen" class="ui-box screen-center ui-overlay">
-            <h1 class="title-lg">HookTheHook</h1>
-            <p class="text-body">בואו נצלול פנימה! עברו את שלושת השלבים ואספו אוצרות ממעמקי הים.</p>
-            <button id="start-btn" class="btn btn-blue">התחל לשחק</button>
-        </div>
-
-        <div id="level-intro-screen" class="ui-box screen-center hidden ui-overlay">
-            <h2 id="level-intro-title" class="title-lg"></h2>
-            <p id="level-intro-text" class="text-body"></p>
-            <button id="start-level-btn" class="btn btn-blue btn-sm">המשך</button>
-        </div>
-
-        <div id="survey-1-screen" class="ui-box screen-center hidden ui-overlay">
-            <h2 class="title-lg">שלב 1 הושלם!</h2>
-            <p class="text-body">איך התחושה להתחיל ללמוד את הקורס הזה בעזרת משחק?</p>
-            <div id="emoji-container-1" class="emoji-row">
-                <button class="emoji-btn face-choice" type="button" data-emoji="מתרגש" aria-label="מתרגש"><img class="face-img" src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
-                <button class="emoji-btn face-choice" type="button" data-emoji="שמח" aria-label="שמח"><img class="face-img" src="assets/Hook Game/4-happy-pirate.png" alt=""></button>
-                <button class="emoji-btn face-choice" type="button" data-emoji="נייטרלי" aria-label="נייטרלי"><img class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png" alt=""></button>
-                <button class="emoji-btn face-choice" type="button" data-emoji="לא בטוח" aria-label="לא בטוח"><img class="face-img" src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
-                <button class="emoji-btn face-choice" type="button" data-emoji="מתוסכל" aria-label="מתוסכל"><img class="face-img" src="assets/Hook Game/1-frustrated-pirate.png" alt=""></button>
-            </div>
-            <div class="selected-display">בחרת: <span id="selected-emojis-display"></span></div>
-            <button id="submit-survey-1-btn" class="btn btn-blue btn-sm">המשך</button>
-        </div>
-
-        <div id="animation-modal" class="hidden ui-overlay">
-            <div class="modal-inner perspective-container">
-                <div id="principle-card" class="principle-card">
-                    <h2 id="card-title" class="card-title"></h2>
-                    <p id="card-text" class="card-text"></p>
-                    <button id="close-card-btn" class="btn btn-amber">המשך</button>
-                </div>
-                <div class="chest-wrapper">
-                    <div id="chest-sprite" class="chest-sprite" role="img" aria-label="תיבת אוצר נפתחת"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="survey-2-screen" class="ui-box screen-center hidden ui-overlay">
-            <h2 class="title-green">כל הכבוד, סיימת!</h2>
-            <div class="survey-section">
-                <p class="text-bold">1. כמה נהנית לקבל נקודות?</p>
-                <div id="rating-1" class="emoji-row">
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="1" aria-label="מאוד נהניתי"><img class="face-img" src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="2" aria-label="נהניתי"><img class="face-img" src="assets/Hook Game/4-happy-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="3" aria-label="נייטרלי"><img class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="4" aria-label="פחות נהניתי"><img class="face-img" src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="5" aria-label="לא נהניתי"><img class="face-img" src="assets/Hook Game/1-frustrated-pirate.png" alt=""></button>
-                </div>
-            </div>
-            <div class="survey-section">
-                <p class="text-bold">2. כמה נהנית מהאינטראקציה והאתגר?</p>
-                <div id="rating-2" class="emoji-row">
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="1" aria-label="מאוד נהניתי"><img class="face-img" src="assets/Hook Game/5-very-happy-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="2" aria-label="נהניתי"><img class="face-img" src="assets/Hook Game/4-happy-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="3" aria-label="נייטרלי"><img class="face-img" src="assets/Hook Game/3-neutral-bored-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="4" aria-label="פחות נהניתי"><img class="face-img" src="assets/Hook Game/2-slightly-frustrated-pirate.png" alt=""></button>
-                    <button class="emoji-btn single-emoji face-choice" type="button" data-val="5" aria-label="לא נהניתי"><img class="face-img" src="assets/Hook Game/1-frustrated-pirate.png" alt=""></button>
-                </div>
-            </div>
-            <button id="submit-survey-2-btn" class="btn btn-green">סיום</button>
-        </div>
-    </div>
-</div>
-
-<script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

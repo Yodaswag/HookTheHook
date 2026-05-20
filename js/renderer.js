@@ -509,7 +509,7 @@ export function drawFinalScreen(ctx, score) {
 
     ctx.fillStyle = "#e8f5ff";
     ctx.font = "bold 18px Trebuchet MS, Arial, system-ui";
-    ctx.fillText("גללו מטה ולחצו על הבא", VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 65);
+    ctx.fillText("גללו מטה לסיכום העיקרון", VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT - 65);
 
     if (arrowImg.naturalWidth > 0) {
         ctx.save();

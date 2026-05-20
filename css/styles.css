@@ -1,5 +1,15 @@
 /* styles.css - HookTheHook UI shell */
 
+@font-face {
+    font-family: 'Aloja';
+    src: url('https://db.onlinewebfonts.com/t/b12cce617218fe8bfa367def9a61af72.woff2') format('woff2'),
+         url('https://db.onlinewebfonts.com/t/b12cce617218fe8bfa367def9a61af72.woff') format('woff'),
+         url('https://db.onlinewebfonts.com/t/b12cce617218fe8bfa367def9a61af72.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -129,6 +139,11 @@ canvas {
 
 .title-lg {
     color: #6b2f12;
+}
+
+#start-screen .title-lg {
+    font-family: 'Aloja', sans-serif;
+    color: #264f73;
 }
 
 .title-green {
